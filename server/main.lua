@@ -81,7 +81,7 @@ lib.callback.register('reg:server:GetVehicles', function(source)
 
         data = vehicles 
 
-        name = player.PlayerData.firstname .. " " .. player.PlayerData.lastname
+        name = player.PlayerData.charinfo.firstname .. " " .. player.PlayerData.charinfo.lastname
     end
 
     return data, name

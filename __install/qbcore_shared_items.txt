@@ -1,0 +1,3 @@
+    ['vehicle_reg'] 				 	 = {['name'] = 'vehicle_reg', 						['label'] = 'Vehicle Registration', 				['weight'] = 0, 		['type'] = 'item', 		['image'] = 'vehicle_reg.png', 					['unique'] = true, 		['useable'] = true,  	['shouldClose'] = true,    ['combinable'] = nil,   ['description'] = 'Vehicle Registration'},
+
+    ['vehicle_ins'] 				 	 = {['name'] = 'vehicle_ins', 						['label'] = 'Vehicle Insurance', 				['weight'] = 0, 		['type'] = 'item', 		['image'] = 'vehicle_ins.png', 					['unique'] = true, 		['useable'] = true,  	['shouldClose'] = true,    ['combinable'] = nil,   ['description'] = 'Vehicle Insurance'},

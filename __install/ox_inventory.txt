@@ -1,0 +1,17 @@
+	["vehicle_reg"] = {
+		label = "Vehicle Registration",
+		weight = 0,
+		stack = false,
+		server = {
+			export = 'browns_registration.UseRegistration'
+		}
+	}, 
+
+	["vehicle_ins"] = {
+		label = "Vehicle Insurance",
+		weight = 0,
+		stack = false,
+		server = {
+			export = 'browns_registration.UseInsurance'
+		}
+	}, 

@@ -1,0 +1,42 @@
+body {
+    overflow: hidden !important;
+    background-color: transparent !important;
+}
+
+#container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 600px;
+    width: 900px;
+    background-image: url(./img/bg.jpg);
+    background-size: cover;
+    align-items: center;
+    text-align: center;
+    justify-content: top;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+#ins-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 600px;
+    width: 900px;
+    background-image: url(./img/bg-ins.jpg);
+    background-size: cover;
+    align-items: center;
+    text-align: center;
+    justify-content: top;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.seal {
+    width: 100px;
+}

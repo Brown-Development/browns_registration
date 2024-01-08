@@ -12,7 +12,7 @@ Citizen.CreateThread(function()
                 TriggerClientEvent('reg:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
             end)
         end
-    elseif FW == 'esx' then 
+    elseif FW == 'qb-core' then 
         if not string.find(INV, 'ox') and not string.find(INV, 'qs') then 
             CORE.Functions.CreateUseableItem('vehicle_reg', function(source, item)
                 TriggerClientEvent('reg:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)

@@ -330,7 +330,7 @@ RegisterNetEvent('reg:client:ShowRegistration', function(plate, name, date)
         if netId ~= false then 
             local Vehicle = NetToVeh(netId)
     
-            if string.len(Entity(Vehicle).state.vin) >= 10 then 
+            if Entity(Vehicle).state.vin ~= nil and string.len(Entity(Vehicle).state.vin) >= 10 then 
     
                 VIN = Entity(Vehicle).state.vin
     
@@ -395,7 +395,7 @@ RegisterNetEvent('reg:client:ShowInsurance', function(plate, name, date, expire)
         if netId ~= false then 
             local Vehicle = NetToVeh(netId)
     
-            if string.len(Entity(Vehicle).state.vin) >= 10 then 
+            if Entity(Vehicle).state.vin ~= nil and string.len(Entity(Vehicle).state.vin) >= 10 then 
     
                 VIN = Entity(Vehicle).state.vin
     

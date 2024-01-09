@@ -9,6 +9,10 @@ Browns Registration & Insurance is a script that allows players to purchase vehi
 The script also makes every vehicle come with a vin number that you can view by targetting any vehicle in the game world or by
 viewing insurance or registration documents.
 
+# Developer Notes (PLEASE READ)
+
+Do NOT rename this script, it will not work properly if you do...
+
 # Installation:
 
 1. navigate to the "__install" folder 

@@ -3,6 +3,7 @@
 Personal Discord: bwobrown
 Discord Server: https://discord.gg/ptNVufG9us
 
+# IF YOU LIKE THIS SCRIPT, CHECK OUT MY TEBEX: https://brown-development.tebex.io/
 
 Browns Registration & Insurance is a script that allows players to purchase vehicle registration and insurance plans for their vehicles
 The script also makes every vehicle come with a vin number that you can view by targetting any vehicle in the game world or by

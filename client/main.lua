@@ -171,7 +171,7 @@ function OpenMenu()
 
     if FW == 'esx' then 
         local pdata = CORE.GetPlayerData() 
-        playerName = pdata.firstName .. " " .. pdata.lastName or pdata.['firstName'] .. " " .. pdata.['lastName']
+        playerName = pdata.firstName .. " " .. pdata.lastName or pdata['firstName'] .. " " .. pdata['lastName']
     end
 
     if vehicles[1] then 
@@ -212,7 +212,7 @@ function OpenMenu_2()
 
     if FW == 'esx' then 
         local pdata = CORE.GetPlayerData() 
-        playerName = pdata.firstName .. " " .. pdata.lastName or pdata.['firstName'] .. " " .. pdata.['lastName']
+        playerName = pdata.firstName .. " " .. pdata.lastName or pdata['firstName'] .. " " .. pdata['lastName']
     end
 
     if vehicles[1] then 
@@ -247,7 +247,7 @@ function OpenMenu_2()
     
             if FW == 'esx' then 
                 local pdata = CORE.GetPlayerData() 
-                playerName = pdata.firstName .. " " .. pdata.lastName or pdata.['firstName'] .. " " .. pdata.['lastName']
+                playerName = pdata.firstName .. " " .. pdata.lastName or pdata['firstName'] .. " " .. pdata['lastName']
             end
     
             local bool = lib.callback.await('reg:server:AddInsurance', false, input[1], input[2], playerName)

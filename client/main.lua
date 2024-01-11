@@ -171,11 +171,11 @@ function OpenMenu()
 
     if FW == 'esx' then 
         local pdata = CORE.GetPlayerData() 
-        playerName = pdata.firstName .. " " .. pdata.lastName or pdata['firstName'] .. " " .. pdata['lastName']
-
-        if not playerName then 
-            local data_name = lib.callback.await('reg:server:esxdataName', false)
-            playerName = data_name 
+        
+        if pdata and pdata.firstName and pdata.lastName then 
+            playerName = pdata.firstName .. " " .. pdata.lastName
+        else
+            playerName = lib.callback.await('reg:server:esxdataName', false)
         end
         
     end
@@ -218,11 +218,10 @@ function OpenMenu_2()
 
     if FW == 'esx' then 
         local pdata = CORE.GetPlayerData() 
-        playerName = pdata.firstName .. " " .. pdata.lastName or pdata['firstName'] .. " " .. pdata['lastName']
-
-        if not playerName then 
-            local data_name = lib.callback.await('reg:server:esxdataName', false)
-            playerName = data_name 
+        if pdata and pdata.firstName and pdata.lastName then 
+            playerName = pdata.firstName .. " " .. pdata.lastName
+        else
+            playerName = lib.callback.await('reg:server:esxdataName', false)
         end
     end
 
@@ -257,12 +256,11 @@ function OpenMenu_2()
             local _, playerName = lib.callback.await('reg:server:GetVehicles', false)
     
             if FW == 'esx' then 
-                local pdata = CORE.GetPlayerData() 
-                playerName = pdata.firstName .. " " .. pdata.lastName or pdata['firstName'] .. " " .. pdata['lastName']
-                
-                if not playerName then 
-                    local data_name = lib.callback.await('reg:server:esxdataName', false)
-                    playerName = data_name 
+                local pdata = CORE.GetPlayerData()
+                if pdata and pdata.firstName and pdata.lastName then 
+                    playerName = pdata.firstName .. " " .. pdata.lastName
+                else
+                    playerName = lib.callback.await('reg:server:esxdataName', false)
                 end
             end
     

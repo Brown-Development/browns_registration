@@ -264,3 +264,17 @@ lib.callback.register('reg:server:AddInsurance', function(source, plate, plan, n
     return canPurchase
 
 end)
+
+lib.callback.register('reg:server:esxdataName', function(source)
+    local player = getPlayer(source)
+    local identifier = getId(player)
+
+    local data = MySQL.query.await('SELECT * FROM users WHERE identifier = ?', {
+        identifier
+    })
+
+    name = data[1].firstname .. " " .. data[1].lastname
+
+    return name
+
+end)

@@ -31,13 +31,13 @@ exports('getId', function(player)
 end)
 
 -- Function to add paperwork
-exports('AddPaperworkToPlayerInventory', function(source, item, plate, name, date, daysOfInsurance, type)
+exports('AddPaperworkToPlayerInventory', function(source, item, plate, vin, name, date, daysOfInsurance, type)
     if string.find(INV, 'qb') or string.find(INV, 'lj') or string.find(INV, 'ps') then 
-        exports[INV]:AddItem(source, item, 1, nil, {regPlate = plate, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
+        exports[INV]:AddItem(source, item, 1, nil, {regPlate = plate, regVin = vin, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
     elseif string.find(INV, 'qs')  then
         print(daysOfInsurance)
-        exports['qs-inventory']:AddItem(source, item, 1, nil , {regPlate = plate, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
+        exports['qs-inventory']:AddItem(source, item, 1, nil , {regPlate = plate, regVin = vin, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
     else
-        exports.ox_inventory:AddItem(source, item, 1, {regPlate = plate, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
+        exports.ox_inventory:AddItem(source, item, 1, {regPlate = plate, regVin = vin, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
     end
 end)

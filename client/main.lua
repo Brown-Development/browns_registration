@@ -95,27 +95,20 @@ local function DoAnimation(dict, clip, bone, offset, rot, model, isCurrentlyView
     end)
 end
 
-local function ApplyVINtoVeh(vehicle, plate)
-    if not plate then
-        plate = GetVehicleNumberPlateText(vehicle)
-    end
+local function ApplyVINtoVeh(vehicle)
+    local plate = GetVehicleNumberPlateText(vehicle)
+    print(plate)
     local checkReturnFromDB = lib.callback.await('browns_registration:server:CheckIfVehicleHasVin', false, plate) -- false here is source, as source seems to be needed on the other side tho not used
     if checkReturnFromDB == nil or checkReturnFromDB == '' then
         local generatedVin = GenerateVin()
         if checkReturnFromDB == '' then
             lib.callback.await('browns_registration:server:RegisterVinToDB', false, plate, generatedVin)
         end
-        if not vehicle then
-            checkReturnFromDB = generatedVin
-            return checkReturnFromDB
-        end
         Entity(vehicle).state:set('vin', generatedVin)
+    else
+        local vinAsString = tostring(checkReturnFromDB.vin)
+        Entity(vehicle).state:set('vin', vinAsString)
     end
-end
-
-local function CheckVehicleVin(plate)
-    local vin = lib.callback.await('browns_registration:server:CheckIfVehicleHasVin', false, plate) -- false here is source, as source seems to be needed on the other side tho not used
-    return vin
 end
 
 -- Main loop to check player zone and manage UI
@@ -163,7 +156,7 @@ Citizen.CreateThread(function()
             onSelect = function(data)
                 local vehicle = data.entity 
                 if not Entity(vehicle).state.vin then 
-                    ApplyVINtoVeh(vehicle, nil)
+                    ApplyVINtoVeh(vehicle)
                 end
                 ShowVin(Entity(vehicle).state.vin)
             end
@@ -177,7 +170,7 @@ Citizen.CreateThread(function()
                     action = function(entity) 
                         local vehicle = entity
                         if not Entity(vehicle).state.vin then 
-                            ApplyVINtoVeh(vehicle, nil)
+                            ApplyVINtoVeh(vehicle)
                         end
                         ShowVin(Entity(vehicle).state.vin)
                     end,
@@ -188,25 +181,20 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNetEvent('browns_registration:client:ShowPaperwork', function (plate, name, date, expire)
+RegisterNetEvent('browns_registration:client:ShowPaperwork', function (plate, vin, name, date, expire)
     if not IsCurrentlyViewing then
-        local vin = CheckVehicleVin(plate)
         local paperworkType
         if expire == '' then
             paperworkType = 'registration'
         else 
             paperworkType = 'insurance'
         end
-        if not vin then
-            vin = ApplyVINtoVeh(nil, plate)
-        end
-        local vinAsString = tostring(vin.vin)
         if paperworkType == 'registration' then
             SendNUIMessage({
                 show = 'reg',
                 plate = plate, 
                 name = name,
-                vin = vinAsString,
+                vin = vin,
                 date = date,
                 msg = 'REGISTRATION SHALL EXPIRE' .. " " .. tostring(config.expire) .. " " .. 'DAYS AFTER ABOVE DATE'
             })
@@ -215,7 +203,7 @@ RegisterNetEvent('browns_registration:client:ShowPaperwork', function (plate, na
                 show = 'ins',
                 plate = plate, 
                 name = name,
-                vin = vinAsString,
+                vin = vin,
                 date = date,
                 msg = 'INSURANCE SHALL EXPIRE' .. " " .. expire .. " " .. 'DAYS AFTER ABOVE DATE'
             })

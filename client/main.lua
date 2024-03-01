@@ -292,22 +292,22 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
                     value = data.plate
                 })
             end
-    
+            
             local input = lib.inputDialog('Purchase Insurance - ($' .. tostring(config.costs.insurance) .. " Per Month)", {
                 {type = 'select', label = 'Choose Vehicle', options = plates, description = 'Choose Vehicle By Plate'},
                 {type = 'select', label = 'Choose Plan', options = {
-                    {label = '1 Month', value = '30'},
-                    {label = '2 Month', value = '60'},
-                    {label = '3 Month', value = '90'},
-                    {label = '4 Month', value = '120'},
-                    {label = '5 Month', value = '150'},
-                    {label = '6 Month', value = '180'},
-                    {label = '7 Month', value = '210'},
-                    {label = '8 Month', value = '240'},
-                    {label = '9 Month', value = '270'},
-                    {label = '10 Month', value = '300'},
-                    {label = '11 Month', value = '330'},
-                    {label = '12 Month', value = '360'},
+                    {label = '1 Month',  value = tostring(1*30)},
+                    {label = '2 Month',  value = tostring(2*30)},
+                    {label = '3 Month',  value = tostring(3*30)},
+                    {label = '4 Month',  value = tostring(4*30)},
+                    {label = '5 Month',  value = tostring(5*30)},
+                    {label = '6 Month',  value = tostring(6*30)},
+                    {label = '7 Month',  value = tostring(7*30)},
+                    {label = '8 Month',  value = tostring(8*30)},
+                    {label = '9 Month',  value = tostring(9*30)},
+                    {label = '10 Month', value = tostring(10*30)},
+                    {label = '11 Month', value = tostring(11*30)},
+                    {label = '12 Month', value = tostring(12*30)},
                 }},
             })
         

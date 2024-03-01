@@ -6,29 +6,29 @@ Citizen.CreateThread(function()
     if FW == 'esx' then 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil, 'registration')
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, 'insurance')
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
             end)
         end
     elseif FW == 'qb-core' then 
         if not string.find(INV, 'ox') and not string.find(INV, 'qs') then 
             CORE.Functions.CreateUseableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil, 'registration')
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil)
             end)
 
             CORE.Functions.CreateUseableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, 'insurance')
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
             end)
         end
 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil, 'registration')
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, 'insurance')
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
             end)
         end
     end
@@ -92,11 +92,11 @@ lib.callback.register('browns_registration:server:RegisterVinToDB', function (so
     end
 end)
 
-lib.callback.register('browns_registration:server:DeliverPaperwork', function(source, plate, name, plan)
+lib.callback.register('browns_registration:server:DeliverPaperwork', function(source, plate, name, daysOfInsurance)
     local player = exports.browns_registration:getPlayer(source)
 
     local registrationCost = config.costs.registration
-    local insuranceCost = tonumber(plan) / 30 * config.costs.insurance
+    local insuranceCost = tonumber(daysOfInsurance) / 30 * config.costs.insurance
     local totalCost = registrationCost + insuranceCost
 
     local amount
@@ -128,12 +128,10 @@ lib.callback.register('browns_registration:server:DeliverPaperwork', function(so
             player.Functions.RemoveMoney('cash', totalCost, 'Vehicle Registration and Insurance')
         end
 
-        -- Add registration paperwork to player's inventory
-        exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), nil)
-
-        -- If insurance plan is provided, add insurance paperwork as well
-        if plan and tonumber(plan) > 0 then
-            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_ins', plate, name, os.date(), tostring(plan))
+        if type == 'registration' then -- Add registration paperwork to player's inventory
+            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), '', 'registration')
+        elseif daysOfInsurance and tonumber(daysOfInsurance) > 0 then -- If insurance daysOfInsurance is provided, add insurance paperwork as well
+            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_ins', plate, name, os.date(), tostring(daysOfInsurance), 'insurance')
         end
     end
 

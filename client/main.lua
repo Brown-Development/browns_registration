@@ -188,12 +188,31 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNetEvent('browns_registration:client:ShowPaperwork', function (source, plate, name, date, expire, paperworkType) -- once again source is here caus' why not
+RegisterNetEvent('browns_registration:client:ShowPaperwork', function (source, plate, name, date, expire) -- once again source is here caus' why not
     if not IsCurrentlyViewing then
         local vin = CheckVehicleVin(plate)
+        local paperworkType 
+        print('Expire: ' .. tostring(expire))
+        if not expire then
+            paperworkType = 'registration'
+        else 
+            paperworkType = 'insurance'
+        end
+        print(paperworkType)
         if not vin then
             vin = ApplyVINtoVeh(nil, plate)
         end
+        SendNUIMessage({
+            SendNUIMessage({
+                show = 'reg',
+                plate = 'Plate:' .. " " .. plate, 
+                name = 'Owner:' .. " " .. name,
+                vin = 'VIN:' .. " " .. vin,
+                date = 'REGISTRATION DATE:' .. " " .. date,
+                msg = 'REGISTRATION SHALL EXPIRE' .. " " .. tostring(config.expire) .. " " .. 'DAYS AFTER ABOVE DATE'
+            })
+        })
+        
         if paperworkType == 'registration' then
             SendNUIMessage({
                 show = 'reg',
@@ -214,6 +233,8 @@ RegisterNetEvent('browns_registration:client:ShowPaperwork', function (source, p
                 msg = 'INSURANCE SHALL EXPIRE' .. " " .. expire .. " " .. 'DAYS AFTER ABOVE DATE'
             })
             print('insurance')
+        else
+            print('lol')
         end
         DoAnimation(dict, clip, bone, offset, rot, clipboard, true)
         IsCurrentlyViewing = true
@@ -256,7 +277,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
                     title = data.plate,
                     description = 'Click to Purchase Registration for vehicle with plate:' .. " " .. data.plate,
                     onSelect = function()
-                        local bool = lib.callback.await('browns_registration:server:AddRegistration', false, data.plate, playerName)
+                        local bool = lib.callback.await('browns_registration:server:DeliverPaperwork', false, data.plate, playerName, nil)
                         
                         if not bool then 
                             Notify('Vehicle Registration', 'You dont have enough money', 'error', 5000)
@@ -330,7 +351,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
                     end
                 end
         
-                local bool = lib.callback.await('browns_registration:server:AddInsurance', false, input[1], input[2], playerName)
+                local bool = lib.callback.await('browns_registration:server:DeliverPaperwork', false, input[1], playerName, input[2])
         
                 if not bool then 
                     Notify('Vehicle Insurance', 'You Dont have enough money', 'error', 5000)

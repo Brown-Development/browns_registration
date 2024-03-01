@@ -74,27 +74,6 @@ lib.callback.register('browns_registration:server:GetPlayerVehiclesFromDB', func
     return data, name
 end)
 
-lib.callback.register('browns_registration:server:CheckIfVehicleHasVin', function (source, plate)
-    local returnData = nil
-    if FW == 'esx' then
-        -- add esx logic
-    elseif FW == 'qb-core' then
-        local vehicleFromDB = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
-        -- note: below we check for the 1st row of vehicleFromDB as it retruns a table array and not row (yea I know, stupid)
-        if vehicleFromDB[1] and vehicleFromDB[1].vin then -- if vehicle is in DB and has a vin
-            returnData = vehicleFromDB[1] -- return the vin
-        elseif vehicleFromDB[1] and vehicleFromDB[1].vin == nil then -- if vehicle is in DB but has no vin
-            returnData = ''
-        end
-    end
-
-    return returnData
-    -- returnData values:
-    -- nil  = vehicle not player
-    -- ''   = vehicle is player but has no vin
-    -- else = vin number
-end)
-
 local function CheckIfVehicleHasVin(source, plate)
     local returnData = nil
     if FW == 'esx' then
@@ -116,12 +95,8 @@ local function CheckIfVehicleHasVin(source, plate)
     -- else = vin number
 end
 
-lib.callback.register('browns_registration:server:RegisterVinToDB', function (source, plate, generatedVin)
-    if FW == 'esx' then
-        -- add esx logic
-    elseif FW == 'qb-core' then
-        MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {generatedVin, plate})
-    end
+lib.callback.register('browns_registration:server:CheckIfVehicleHasVin', function (source, plate)
+    CheckIfVehicleHasVin(source, plate)
 end)
 
 local function RegisterVinToDB(source, plate, generatedVin)
@@ -131,6 +106,11 @@ local function RegisterVinToDB(source, plate, generatedVin)
         MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {generatedVin, plate})
     end
 end
+
+lib.callback.register('browns_registration:server:RegisterVinToDB', function (source, plate, generatedVin)
+    RegisterVinToDB(source, plate, generatedVin)
+end)
+
 
 lib.callback.register('browns_registration:server:DeliverPaperwork', function(source, plate, name, daysOfInsurance)
     local player = exports.browns_registration:getPlayer(source)

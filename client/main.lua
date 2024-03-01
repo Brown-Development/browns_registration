@@ -19,9 +19,10 @@ local function GenerateVin()
     local chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
     local vin = {}
     for i = 1, 10 do
-        vin[i] = chars:sub(math.random(1, #chars), math.random(1, #chars))
+        local index = math.random(1, #chars) -- Get a random index in the range of 1 to the length of chars
+        vin[i] = chars:sub(index, index) -- Select a single character at the random index
     end
-    return table.concat(vin)
+    return table.concat(vin) -- Concatenate the table into a string
 end
 
 local function DetachAnim(entity)
@@ -67,6 +68,18 @@ local function DoAnimation(dict, clip, bone, offset, rot, model, isCurrentlyView
     end)
 end
 
+local function ApplyVINtoVeh(vehicle)
+    local plate = GetVehicleNumberPlateText(vehicle)
+    local checkReturnFromDB = lib.callback.await('browns_registration:server:CheckIfVehicleHasVin', false, plate) -- false here is source, as source seems to be needed on the other side tho not used
+    if checkReturnFromDB == nil or checkReturnFromDB == '' then
+        local generatedVin = GenerateVin()
+        if checkReturnFromDB == '' then
+            lib.callback.await('browns_registration:server:RegisterVinToDB', false, plate, generatedVin)
+        end
+        Entity(vehicle).state:set('vin', generatedVin)
+    end
+end
+
 Citizen.CreateThread(function()
     if string.find(Targ, 'ox') then 
         exports.ox_target:addGlobalVehicle({
@@ -76,26 +89,9 @@ Citizen.CreateThread(function()
             onSelect = function(data)
                 local vehicle = data.entity 
                 if not Entity(vehicle).state.vin then 
-                    local plate = GetVehicleNumberPlateText(vehicle)
-                    local Gen = GenerateVin()
-                    while true do 
-                        Citizen.Wait(0)
-                        if type(Gen) == 'string' then 
-                            if string.len(Gen) == 10 then 
-                                break 
-                            end
-                        end
-                    end
-                    local replace = plate .. Gen
-
-                    local VIN = lib.callback.await('browns_registration:server:EnsureVehicleVIN', false, plate, replace)
-
-                    Entity(vehicle).state:set('vin', VIN, true)
-
-                    ShowVin(VIN)
-                else
-                    ShowVin(Entity(vehicle).state.vin)
+                    ApplyVINtoVeh(vehicle)
                 end
+                ShowVin(Entity(vehicle).state.vin)
             end
         })
     else
@@ -107,34 +103,17 @@ Citizen.CreateThread(function()
                     action = function(entity) 
                         local vehicle = entity
                         if not Entity(vehicle).state.vin then 
-                            local plate = GetVehicleNumberPlateText(vehicle)
-                            local Gen = GenerateVin()
-                            while true do 
-                                Citizen.Wait(0)
-                                if type(Gen) == 'string' then 
-                                    if string.len(Gen) == 10 then 
-                                        break 
-                                    end
-                                end
-                            end
-                            local replace = plate .. Gen
-        
-                            local VIN = lib.callback.await('browns_registration:server:EnsureVehicleVIN', false, plate, replace)
-        
-                            Entity(vehicle).state:set('vin', VIN)
-        
-                            ShowVin(VIN)
-                        else
-                            ShowVin(Entity(vehicle).state.vin)
+                            ApplyVINtoVeh(vehicle)
                         end
+                        ShowVin(Entity(vehicle).state.vin)
                     end,
-                    
                 }
             },
             distance = 2.5,
         })
     end
 end)
+
 
 function ShowVin(vin)
     lib.alertDialog({
@@ -345,18 +324,18 @@ RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, 
 
     if not IsCurrentlyViewing then 
         IsCurrentlyViewing = true
-        local Gen = GenerateVin()
+        local generatedVin = GenerateVin()
 
         while true do 
             Citizen.Wait(0)
-            if type(Gen) == 'string' then 
-                if string.len(Gen) == 10 then 
+            if type(generatedVin) == 'string' then 
+                if string.len(generatedVin) == 10 then 
                     break 
                 end
             end
         end
     
-        local comb = plate .. Gen 
+        local comb = plate .. generatedVin 
     
         local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
     
@@ -409,8 +388,8 @@ RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, nam
     if not IsCurrentlyViewing then 
 
         IsCurrentlyViewing = true
-        local Gen = GenerateVin()
-        local comb = plate .. Gen 
+        local generatedVin = GenerateVin()
+        local comb = plate .. generatedVin 
         local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
 
         if netId ~= false then 

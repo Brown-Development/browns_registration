@@ -87,6 +87,35 @@ lib.callback.register('browns_registration:server:GetVehicles', function(source)
     return data, name
 end)
 
+lib.callback.register('browns_registration:server:CheckIfVehicleHasVin', function (source, plate)
+    local returnData = nil
+    if FW == 'esx' then
+        -- add esx logic
+    elseif FW == 'qb-core' then
+        local vehicleFromDB = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
+        -- note: below we check for the 1st row of vehicleFromDB as it retruns a table array and not row (yea I know, stupid)
+        if vehicleFromDB[1] and vehicleFromDB[1].vin then -- if vehicle is in DB and has a vin
+            returnData = vehicleFromDB[1] -- return the vin
+        elseif vehicleFromDB[1] and vehicleFromDB[1].vin == nil then -- if vehicle is in DB but has no vin
+            returnData = ''
+        end
+    end
+
+    return returnData
+    -- returnData values:
+    -- nil  = vehicle not player
+    -- ''   = vehicle is player but has no vin
+    -- else = vin number
+end)
+
+lib.callback.register('browns_registration:server:RegisterVinToDB', function (source, plate, generatedVin)
+    if FW == 'esx' then
+        -- add esx logic
+    elseif FW == 'qb-core' then
+        MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {generatedVin, plate})
+    end
+end)
+
 lib.callback.register('browns_registration:server:EnsureVehicleVIN', function(source, plate, vin)
 
     local data = nil

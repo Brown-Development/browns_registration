@@ -95,16 +95,27 @@ local function DoAnimation(dict, clip, bone, offset, rot, model, isCurrentlyView
     end)
 end
 
-local function ApplyVINtoVeh(vehicle)
-    local plate = GetVehicleNumberPlateText(vehicle)
+local function ApplyVINtoVeh(vehicle, plate)
+    if not plate then
+        plate = GetVehicleNumberPlateText(vehicle)
+    end
     local checkReturnFromDB = lib.callback.await('browns_registration:server:CheckIfVehicleHasVin', false, plate) -- false here is source, as source seems to be needed on the other side tho not used
     if checkReturnFromDB == nil or checkReturnFromDB == '' then
         local generatedVin = GenerateVin()
         if checkReturnFromDB == '' then
             lib.callback.await('browns_registration:server:RegisterVinToDB', false, plate, generatedVin)
         end
+        if not vehicle then
+            checkReturnFromDB = generatedVin
+            return checkReturnFromDB
+        end
         Entity(vehicle).state:set('vin', generatedVin)
     end
+end
+
+local function CheckVehicleVin(plate)
+    local vin = lib.callback.await('browns_registration:server:CheckIfVehicleHasVin', false, plate) -- false here is source, as source seems to be needed on the other side tho not used
+    return vin
 end
 
 -- Main loop to check player zone and manage UI
@@ -152,7 +163,7 @@ Citizen.CreateThread(function()
             onSelect = function(data)
                 local vehicle = data.entity 
                 if not Entity(vehicle).state.vin then 
-                    ApplyVINtoVeh(vehicle)
+                    ApplyVINtoVeh(vehicle, nil)
                 end
                 ShowVin(Entity(vehicle).state.vin)
             end
@@ -166,7 +177,7 @@ Citizen.CreateThread(function()
                     action = function(entity) 
                         local vehicle = entity
                         if not Entity(vehicle).state.vin then 
-                            ApplyVINtoVeh(vehicle)
+                            ApplyVINtoVeh(vehicle, nil)
                         end
                         ShowVin(Entity(vehicle).state.vin)
                     end,
@@ -177,55 +188,39 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, name, date)
-
-    if not IsCurrentlyViewing then 
-        IsCurrentlyViewing = true
-        local generatedVin = GenerateVin()
-
-        while true do 
-            Citizen.Wait(0)
-            if type(generatedVin) == 'string' then 
-                if string.len(generatedVin) == 10 then 
-                    break 
-                end
-            end
+RegisterNetEvent('browns_registration:client:ShowPaperwork', function (source, plate, name, date, expire, paperworkType) -- once again source is here caus' why not
+    if not IsCurrentlyViewing then
+        local vin = CheckVehicleVin(plate)
+        if not vin then
+            vin = ApplyVINtoVeh(nil, plate)
         end
-    
-        local comb = plate .. generatedVin 
-    
-        local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
-    
-        if netId ~= false then 
-            local vehicle = NetToVeh(netId)
-    
-            if Entity(vehicle).state.vin ~= nil and string.len(Entity(vehicle).state.vin) >= 10 then 
-    
-                VIN = Entity(vehicle).state.vin
-    
-            else
-    
-                Entity(vehicle).state:set('vin', VIN, true)
-    
-            end
-    
+        if paperworkType == 'registration' then
+            SendNUIMessage({
+                show = 'reg',
+                plate = 'Plate:' .. " " .. plate, 
+                name = 'Owner:' .. " " .. name,
+                vin = 'VIN:' .. " " .. vin,
+                date = 'REGISTRATION DATE:' .. " " .. date,
+                msg = 'REGISTRATION SHALL EXPIRE' .. " " .. tostring(config.expire) .. " " .. 'DAYS AFTER ABOVE DATE'
+            })
+            print('registration')
+        elseif paperworkType == 'insurance' then
+            SendNUIMessage({
+                show = 'ins',
+                plate = 'Plate:' .. " " .. plate, 
+                name = 'Owner:' .. " " .. name,
+                vin = 'VIN:' .. " " .. vin,
+                date = 'PAYMENT DATE:' .. " " .. date,
+                msg = 'INSURANCE SHALL EXPIRE' .. " " .. expire .. " " .. 'DAYS AFTER ABOVE DATE'
+            })
+            print('insurance')
         end
-    
-        SendNUIMessage({
-            show = 'reg',
-            plate = 'Plate:' .. " " .. plate, 
-            name = 'Owner:' .. " " .. name,
-            vin = 'VIN:' .. " " .. VIN,
-            date = 'REGISTRATION DATE:' .. " " .. date,
-            msg = 'REGISTRATION SHALL EXPIRE' .. " " .. tostring(config.expire) .. " " .. 'DAYS AFTER ABOVE DATE'
-        })
-
         DoAnimation(dict, clip, bone, offset, rot, clipboard, true)
-    
+        IsCurrentlyViewing = true
         Citizen.CreateThread(function()
             while true do 
                 Citizen.Wait(0)
-                if IsControlJustPressed(0, 202) then 
+                if IsControlJustPressed(0, 202) then -- esc
                     SendNUIMessage({
                         show = 'hide'
                     })  
@@ -234,64 +229,7 @@ RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, 
                 end
             end
         end)
-    else
-        Notify('Notification', 'You cant do this, your already viewing paperwork', 'error', 5000)
     end
-    
-end)
-
-RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, name, date, expire)
-
-    if not IsCurrentlyViewing then 
-
-        IsCurrentlyViewing = true
-        local generatedVin = GenerateVin()
-        local comb = plate .. generatedVin 
-        local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
-
-        if netId ~= false then 
-            local vehicle = NetToVeh(netId)
-    
-            if Entity(vehicle).state.vin ~= nil and string.len(Entity(vehicle).state.vin) >= 10 then 
-    
-                VIN = Entity(vehicle).state.vin
-    
-            else
-    
-                Entity(vehicle).state:set('vin', VIN, true)
-    
-            end
-    
-        end
-    
-    
-        SendNUIMessage({
-            show = 'ins',
-            plate = 'Plate:' .. " " .. plate, 
-            name = 'Owner:' .. " " .. name,
-            vin = 'VIN:' .. " " .. VIN,
-            date = 'PAYMENT DATE:' .. " " .. date,
-            msg = 'INSURANCE SHALL EXPIRE' .. " " .. expire .. " " .. 'DAYS AFTER ABOVE DATE'
-        })
-
-        DoAnimation(dict, clip, bone, offset, rot, clipboard, true)
-    
-        Citizen.CreateThread(function()
-            while true do 
-                Citizen.Wait(0)
-                if IsControlJustPressed(0, 202) then 
-                    SendNUIMessage({
-                        show = 'hide'
-                    })  
-                    IsCurrentlyViewing = false
-                    break 
-                end
-            end
-        end)
-    else
-        Notify('Notification', 'You cant do this, your already viewing paperwork', 'error', 5000)
-    end
-
 end)
 
 RegisterNetEvent('browns_registration:client:OpenMenu', function (type)

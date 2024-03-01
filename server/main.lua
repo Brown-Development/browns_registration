@@ -6,29 +6,29 @@ Citizen.CreateThread(function()
     if FW == 'esx' then 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil, 'registration')
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, 'insurance')
             end)
         end
     elseif FW == 'qb-core' then 
         if not string.find(INV, 'ox') and not string.find(INV, 'qs') then 
             CORE.Functions.CreateUseableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil, 'registration')
             end)
 
             CORE.Functions.CreateUseableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, 'insurance')
             end)
         end
 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil, 'registration')
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, 'insurance')
             end)
         end
     end

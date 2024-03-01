@@ -1,9 +1,9 @@
 config = {}
 
 config.Core = {
-    framework = 'esx', -- 'esx' or 'qb-core'
-    inventory = 'ox_inventory', -- 'ox_inventory', 'qb-inventory', 'qs-inventory', 'ps-inventory', or 'lj-inventory'
-    target = 'ox_target', -- 'qb-target', 'ox_target', or 'qtarget'
+    framework = 'qb-core', -- 'esx' or 'qb-core'
+    inventory = 'qs-inventory', -- 'ox_inventory', 'qb-inventory', 'qs-inventory', 'ps-inventory', or 'lj-inventory'
+    target = 'qb-target', -- 'qb-target', 'ox_target', or 'qtarget'
     notify = function(title, message, types, duration) 
 
         -- you can add your own notification exports/events here (client sided) 
@@ -18,8 +18,8 @@ config.Core = {
 }
 
 config.locations = {
-    registration = vec3(-915.5014, -2038.0222, 9.4050), -- coords to get vehicle registration
-    insurance = vec3(119.0357, -204.7258, 54.6431) -- coords to get vehicle insurance
+    registration = vector4(-915.71, -2038.11, 9.4, 231.45), -- coords to get vehicle registration
+    insurance = vector4(117.26, -204.13, 54.66, 337.01) -- coords to get vehicle insurance
 }
 
 config.costs = {

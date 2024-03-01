@@ -27,6 +27,21 @@ local function ShowVin(vin)
     })
 end
 
+local function createBlip(blipSettings, location)
+    local x, y, z = table.unpack(location)
+    local blip = AddBlipForCoord(x, y, z)
+    SetBlipSprite(blip, blipSettings.sprite)
+    SetBlipColour(blip, blipSettings.color)
+    SetBlipDisplay(blip, 4)
+    SetBlipAlpha(blip, 250)
+    SetBlipScale(blip, blipSettings.scale)
+    SetBlipAsShortRange(blip, true)
+    PulseBlip(blip)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString(blipSettings.label)
+    EndTextCommandSetBlipName(blip)
+end
+
 local function GenerateVin()
     local chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
     local vin = {}
@@ -160,43 +175,11 @@ end)
 
 Citizen.CreateThread(function()
     if config.blip.registration.enable then 
-
-        local blipsettings = config.blip.registration
-
-        local x, y, z = table.unpack(config.locations.registration)
-        local blip = AddBlipForCoord(x, y, z)
-        SetBlipSprite(blip, blipsettings.sprite)
-        SetBlipColour(blip, blipsettings.color)
-        SetBlipDisplay(blip, 4)
-        SetBlipAlpha(blip, 250)
-        SetBlipScale(blip, blipsettings.scale)
-        SetBlipAsShortRange(blip, true)
-        PulseBlip(blip)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString(blipsettings.label)
-        EndTextCommandSetBlipName(blip)
-
+        createBlip(config.blip.registration, config.locations.registration)
     end
-end)
 
-Citizen.CreateThread(function()
     if config.blip.insurance.enable then 
-
-        local blipsettings = config.blip.insurance
-
-        local x, y, z = table.unpack(config.locations.insurance)
-        local blip = AddBlipForCoord(x, y, z)
-        SetBlipSprite(blip, blipsettings.sprite)
-        SetBlipColour(blip, blipsettings.color)
-        SetBlipDisplay(blip, 4)
-        SetBlipAlpha(blip, 250)
-        SetBlipScale(blip, blipsettings.scale)
-        SetBlipAsShortRange(blip, true)
-        PulseBlip(blip)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString(blipsettings.label)
-        EndTextCommandSetBlipName(blip)
-
+        createBlip(config.blip.insurance, config.locations.insurance)
     end
 end)
 

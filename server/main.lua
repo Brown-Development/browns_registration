@@ -6,29 +6,29 @@ Citizen.CreateThread(function()
     if FW == 'esx' then 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('reg:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('reg:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
             end)
         end
     elseif FW == 'qb-core' then 
         if not string.find(INV, 'ox') and not string.find(INV, 'qs') then 
             CORE.Functions.CreateUseableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('reg:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
             end)
 
             CORE.Functions.CreateUseableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('reg:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
             end)
         end
 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('reg:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('reg:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
             end)
         end
     end
@@ -39,7 +39,7 @@ exports('UseRegistration', function(event, item, inventory, slot)
     item = exports.ox_inventory:GetSlot(inventory.id, slot)
 
     if event == 'usingItem' then
-        TriggerClientEvent('reg:client:ShowRegistration', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate)
+        TriggerClientEvent('browns_registration:client:ShowRegistration', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate)
 
         return false
     end
@@ -51,14 +51,14 @@ exports('UseInsurance', function(event, item, inventory, slot)
     item = exports.ox_inventory:GetSlot(inventory.id, slot)
 
     if event == 'usingItem' then
-        TriggerClientEvent('reg:client:ShowInsurance', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate, item.metadata.regExpire)
+        TriggerClientEvent('browns_registration:client:ShowInsurance', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate, item.metadata.regExpire)
 
         return false
     end
 
 end)
 
-lib.callback.register('reg:server:GetVehicles', function(source)
+lib.callback.register('browns_registration:server:GetVehicles', function(source)
     local player = getPlayer(source)
     local id = getId(player)
 
@@ -87,7 +87,7 @@ lib.callback.register('reg:server:GetVehicles', function(source)
     return data, name
 end)
 
-lib.callback.register('reg:server:GetVin', function(source, plate, vin)
+lib.callback.register('browns_registration:server:GetVin', function(source, plate, vin)
 
     local data = nil
 
@@ -136,7 +136,7 @@ lib.callback.register('reg:server:GetVin', function(source, plate, vin)
 
 end)
 
-lib.callback.register('reg:server:GetVINVEH', function(source, plate, vin)
+lib.callback.register('browns_registration:server:GetVINVEH', function(source, plate, vin)
 
     local data  
 
@@ -183,7 +183,7 @@ lib.callback.register('reg:server:GetVINVEH', function(source, plate, vin)
     return data, vehicle
 end)
 
-lib.callback.register('reg:server:AddRegistration', function(source, plate, name)
+lib.callback.register('browns_registration:server:AddRegistration', function(source, plate, name)
 
     local player = getPlayer(source)
 
@@ -218,7 +218,7 @@ lib.callback.register('reg:server:AddRegistration', function(source, plate, name
     return canPurchase
 end)
 
-lib.callback.register('reg:server:AddInsurance', function(source, plate, plan, name)
+lib.callback.register('browns_registration:server:AddInsurance', function(source, plate, plan, name)
     plan = tonumber(plan)
 
     local amount
@@ -265,7 +265,7 @@ lib.callback.register('reg:server:AddInsurance', function(source, plate, plan, n
 
 end)
 
-lib.callback.register('reg:server:esxdataName', function(source)
+lib.callback.register('browns_registration:server:esxdataName', function(source)
     local player = getPlayer(source)
     local identifier = getId(player)
 

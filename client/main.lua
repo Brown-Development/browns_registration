@@ -36,7 +36,7 @@ Citizen.CreateThread(function()
                     end
                     local replace = plate .. Gen
 
-                    local VIN = lib.callback.await('reg:server:GetVin', false, plate, replace)
+                    local VIN = lib.callback.await('browns_registration:server:GetVin', false, plate, replace)
 
                     Entity(vehicle).state:set('vin', VIN, true)
 
@@ -67,7 +67,7 @@ Citizen.CreateThread(function()
                             end
                             local replace = plate .. Gen
         
-                            local VIN = lib.callback.await('reg:server:GetVin', false, plate, replace)
+                            local VIN = lib.callback.await('browns_registration:server:GetVin', false, plate, replace)
         
                             Entity(vehicle).state:set('vin', VIN)
         
@@ -167,7 +167,7 @@ end)
 function OpenMenu()
     local plates = {}
 
-    local vehicles, playerName = lib.callback.await('reg:server:GetVehicles', false)
+    local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
 
     if FW == 'esx' then 
         local pdata = CORE.GetPlayerData() 
@@ -175,7 +175,7 @@ function OpenMenu()
         if pdata and pdata.firstName and pdata.lastName then 
             playerName = pdata.firstName .. " " .. pdata.lastName
         else
-            playerName = lib.callback.await('reg:server:esxdataName', false)
+            playerName = lib.callback.await('browns_registration:server:esxdataName', false)
         end
         
     end
@@ -187,7 +187,7 @@ function OpenMenu()
                 title = data.plate,
                 description = 'Click to Purchase Registration for vehicle with plate:' .. " " .. data.plate,
                 onSelect = function()
-                    local bool = lib.callback.await('reg:server:AddRegistration', false, data.plate, playerName)
+                    local bool = lib.callback.await('browns_registration:server:AddRegistration', false, data.plate, playerName)
                     
                     if not bool then 
                         Notify('Vehicle Registration', 'You dont have enough money', 'error', 5000)
@@ -214,14 +214,14 @@ end
 
 function OpenMenu_2()
     local plates = {}
-    local vehicles, playerName = lib.callback.await('reg:server:GetVehicles', false)
+    local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
 
     if FW == 'esx' then 
         local pdata = CORE.GetPlayerData() 
         if pdata and pdata.firstName and pdata.lastName then 
             playerName = pdata.firstName .. " " .. pdata.lastName
         else
-            playerName = lib.callback.await('reg:server:esxdataName', false)
+            playerName = lib.callback.await('browns_registration:server:esxdataName', false)
         end
     end
 
@@ -253,18 +253,18 @@ function OpenMenu_2()
         })
     
         if input then 
-            local _, playerName = lib.callback.await('reg:server:GetVehicles', false)
+            local _, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
     
             if FW == 'esx' then 
                 local pdata = CORE.GetPlayerData()
                 if pdata and pdata.firstName and pdata.lastName then 
                     playerName = pdata.firstName .. " " .. pdata.lastName
                 else
-                    playerName = lib.callback.await('reg:server:esxdataName', false)
+                    playerName = lib.callback.await('browns_registration:server:esxdataName', false)
                 end
             end
     
-            local bool = lib.callback.await('reg:server:AddInsurance', false, input[1], input[2], playerName)
+            local bool = lib.callback.await('browns_registration:server:AddInsurance', false, input[1], input[2], playerName)
     
             if not bool then 
                 Notify('Vehicle Insurance', 'You Dont have enough money', 'error', 5000)
@@ -320,7 +320,7 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNetEvent('reg:client:ShowRegistration', function(plate, name, date)
+RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, name, date)
 
     if not Viewing then 
 
@@ -339,7 +339,7 @@ RegisterNetEvent('reg:client:ShowRegistration', function(plate, name, date)
     
         local comb = plate .. Gen 
     
-        local VIN, netId = lib.callback.await('reg:server:GetVINVEH', false, plate, comb)
+        local VIN, netId = lib.callback.await('browns_registration:server:GetVINVEH', false, plate, comb)
     
         if netId ~= false then 
             local Vehicle = NetToVeh(netId)
@@ -385,7 +385,7 @@ RegisterNetEvent('reg:client:ShowRegistration', function(plate, name, date)
     
 end)
 
-RegisterNetEvent('reg:client:ShowInsurance', function(plate, name, date, expire)
+RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, name, date, expire)
 
     if not Viewing then 
 
@@ -404,7 +404,7 @@ RegisterNetEvent('reg:client:ShowInsurance', function(plate, name, date, expire)
     
         local comb = plate .. Gen 
     
-        local VIN, netId = lib.callback.await('reg:server:GetVINVEH', false, plate, comb)
+        local VIN, netId = lib.callback.await('browns_registration:server:GetVINVEH', false, plate, comb)
     
         if netId ~= false then 
             local Vehicle = NetToVeh(netId)

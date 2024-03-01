@@ -1,4 +1,4 @@
-local FW = config.Core.framework
+local framework = config.Core.framework
 
 local INV = config.Core.inventory
 
@@ -22,7 +22,7 @@ lib.callback.register("browns_registration:server:checkResource", function(sourc
 end)
 
 Citizen.CreateThread(function()
-    if FW == 'esx' then 
+    if framework == 'esx' then 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
                 TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
@@ -31,7 +31,7 @@ Citizen.CreateThread(function()
                 TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
         end
-    elseif FW == 'qb-core' then 
+    elseif framework == 'qb-core' then 
         if not string.find(INV, 'ox') and not string.find(INV, 'qs') then 
             CORE.Functions.CreateUseableItem('vehicle_reg', function(source, item)
                 TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
@@ -61,7 +61,7 @@ lib.callback.register('browns_registration:server:GetPlayerVehiclesFromDB', func
 
     local data = nil 
 
-    if FW == 'esx' then 
+    if framework == 'esx' then 
         local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ?', {
             id
         })
@@ -69,7 +69,7 @@ lib.callback.register('browns_registration:server:GetPlayerVehiclesFromDB', func
         data = vehicles 
 
 
-    elseif  FW == 'qb-core' then 
+    elseif  framework == 'qb-core' then 
         local vehicles = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {
             id
         })
@@ -84,9 +84,9 @@ end)
 
 local function CheckIfVehicleHasVin(source, plate)
     local returnData = nil
-    if FW == 'esx' then
+    if framework == 'esx' then
         -- add esx logic
-    elseif FW == 'qb-core' then
+    elseif framework == 'qb-core' then
         local vehicleFromDB = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
         -- note: below we check for the 1st row of vehicleFromDB as it retruns a table array and not row (yea I know, stupid)
         if vehicleFromDB[1] and vehicleFromDB[1].vin then -- if vehicle is in DB and has a vin
@@ -108,9 +108,9 @@ lib.callback.register('browns_registration:server:CheckIfVehicleHasVin', functio
 end)
 
 local function RegisterVinToDB(source, plate, generatedVin)
-    if FW == 'esx' then
+    if framework == 'esx' then
         -- add esx logic
-    elseif FW == 'qb-core' then
+    elseif framework == 'qb-core' then
         MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {generatedVin, plate})
     end
 end
@@ -133,7 +133,7 @@ lib.callback.register('browns_registration:server:DeliverPaperwork', function(so
     local canPurchase = false
 
     -- Check player's balance
-    if FW == 'esx' then
+    if framework == 'esx' then
         local bal = player.getAccounts()
         for _, v in ipairs(bal) do
             if v.name == 'money' then
@@ -141,7 +141,7 @@ lib.callback.register('browns_registration:server:DeliverPaperwork', function(so
                 break
             end
         end
-    elseif FW == 'qb-core' then
+    elseif framework == 'qb-core' then
         playerMoney = player.PlayerData.money.cash
     end
 
@@ -152,9 +152,9 @@ lib.callback.register('browns_registration:server:DeliverPaperwork', function(so
 
     if canPurchase then
         -- Deduct the total cost from player's balance
-        if FW == 'esx' then
+        if framework == 'esx' then
             player.removeAccountMoney('money', totalCost)
-        elseif FW == 'qb-core' then
+        elseif framework == 'qb-core' then
             player.Functions.RemoveMoney('cash', totalCost, 'Vehicle Registration/Insurance')
         end
         --check if car has vin, if not create

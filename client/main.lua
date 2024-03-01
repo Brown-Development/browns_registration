@@ -1,8 +1,6 @@
-local FW = config.Core.framework 
+local framework = config.Core.framework 
 
 local Notify = config.Core.notify
-
-local Targ = config.Core.target
 
 local inZone = false
 
@@ -142,7 +140,7 @@ Citizen.CreateThread(function()
         },
         })
     else if config.Core.target == 'ox_target' then
-        -- ox_target logic
+        -- 
     else if config.Core.target == 'qtarget' then
         -- qtarget logic
     end
@@ -155,7 +153,7 @@ Citizen.CreateThread(function()
     if config.blip.insurance.enable then 
         createBlip(config.blip.insurance, config.locations.insurance)
     end
-    if string.find(Targ, 'ox') then
+    if config.Core.target == 'ox_target' then
         exports.ox_target:addGlobalVehicle({
             label = 'Look at VIN',
             icon = 'fa-solid fa-hashtag',
@@ -169,7 +167,7 @@ Citizen.CreateThread(function()
             end
         })
     else
-        exports[Targ]:AddGlobalVehicle({
+        exports[config.Core.target]:AddGlobalVehicle({
             options = { 
                 { 
                     icon = 'fa-solid fa-hashtag', 
@@ -238,7 +236,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
 
         local vehicles, playerName = lib.callback.await('browns_registration:server:GetPlayerVehiclesFromDB', false)
     
-        if FW == 'esx' then 
+        if framework == 'esx' then 
             local pdata = CORE.GetPlayerData() 
             
             if pdata and pdata.firstName and pdata.lastName then 
@@ -282,7 +280,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
         local plates = {}
         local vehicles, playerName = lib.callback.await('browns_registration:server:GetPlayerVehiclesFromDB', false)
     
-        if FW == 'esx' then 
+        if framework == 'esx' then 
             local pdata = CORE.GetPlayerData() 
             if pdata and pdata.firstName and pdata.lastName then 
                 playerName = pdata.firstName .. " " .. pdata.lastName
@@ -321,7 +319,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
             if input then 
                 local _, playerName = lib.callback.await('browns_registration:server:GetPlayerVehiclesFromDB', false)
         
-                if FW == 'esx' then 
+                if framework == 'esx' then 
                     local pdata = CORE.GetPlayerData()
                     if pdata and pdata.firstName and pdata.lastName then 
                         playerName = pdata.firstName .. " " .. pdata.lastName

@@ -1,12 +1,12 @@
 -- Determine the server's framework and inventory system from the configuration
-local FW = config.Core.framework
+local framework = config.Core.framework
 local INV = config.Core.inventory
 
 -- Function to get the core object of the server's framework
 exports('getCore', function()
-    if FW == 'esx' then 
+    if framework == 'esx' then 
         return exports['es_extended']:getSharedObject() 
-    elseif FW == 'qb-core' then 
+    elseif framework == 'qb-core' then 
         return exports['qb-core']:GetCoreObject()
     end
 end)
@@ -14,18 +14,18 @@ end)
 -- Function to get a player object
 exports('getPlayer', function(source)
     local core = exports['browns_registration']:getCore()
-    if FW == 'esx' then 
+    if framework == 'esx' then 
         return core.GetPlayerFromId(source)
-    elseif FW == 'qb-core' then 
+    elseif framework == 'qb-core' then 
         return core.Functions.GetPlayer(source)
     end
 end)
 
 -- Function to get a player's identifier
 exports('getId', function(player)
-    if FW == 'esx' then 
+    if framework == 'esx' then 
         return player.getIdentifier()
-    elseif FW == 'qb-core' then 
+    elseif framework == 'qb-core' then 
         return player.PlayerData.citizenid 
     end
 end)

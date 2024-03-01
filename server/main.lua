@@ -59,8 +59,8 @@ exports('UseInsurance', function(event, item, inventory, slot)
 end)
 
 lib.callback.register('browns_registration:server:GetVehicles', function(source)
-    local player = getPlayer(source)
-    local id = getId(player)
+    local player = exports.browns_registration:getPlayer(source)
+    local id = exports.browns_registration:getId(player)
 
     local name = nil 
 
@@ -169,7 +169,7 @@ end)
 
 lib.callback.register('browns_registration:server:AddRegistration', function(source, plate, name)
 
-    local player = getPlayer(source)
+    local player = exports.browns_registration:getPlayer(source)
 
     local amount
 
@@ -196,7 +196,7 @@ lib.callback.register('browns_registration:server:AddRegistration', function(sou
     end
 
     if canPurchase then 
-        AddRegistration(source, 'vehicle_reg', plate, name, os.date())
+        exports.browns_registration:AddRegistrationExport(source, 'vehicle_reg', plate, name, os.date())
     end
 
     return canPurchase
@@ -209,7 +209,7 @@ lib.callback.register('browns_registration:server:AddInsurance', function(source
 
     local canPurchase = false 
 
-    local player = getPlayer(source)
+    local player = exports.browns_registration:getPlayer(source)
 
     if FW == 'esx' then 
 
@@ -242,7 +242,7 @@ lib.callback.register('browns_registration:server:AddInsurance', function(source
             player.Functions.RemoveMoney('cash', cost, 'Vehicle Insurance')
         end
 
-        exports.browns_registration:AddInsurance(source, 'vehicle_ins', plate, name, os.date(), tostring(plan))
+        exports.browns_registration:AddInsuranceExport(source, 'vehicle_ins', plate, name, os.date(), tostring(plan))
     end
 
     return canPurchase
@@ -250,8 +250,8 @@ lib.callback.register('browns_registration:server:AddInsurance', function(source
 end)
 
 lib.callback.register('browns_registration:server:esxdataName', function(source)
-    local player = getPlayer(source)
-    local identifier = getId(player)
+    local player = exports.browns_registration:getPlayer(source)
+    local identifier = exports.browns_registration:getId(player)
 
     local data = MySQL.query.await('SELECT * FROM users WHERE identifier = ?', {
         identifier

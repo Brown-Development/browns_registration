@@ -15,6 +15,58 @@ local bone = 36029
 local offset = vector3(0.16, 0.08, 0.1)
 local rot = vector3(-170.0, 50.0, 20.0)
 
+local function GenerateVin()
+    local chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+    local vin = {}
+    for i = 1, 10 do
+        vin[i] = chars:sub(math.random(1, #chars), math.random(1, #chars))
+    end
+    return table.concat(vin)
+end
+
+local function DetachAnim(entity)
+    Citizen.CreateThread(function()
+        Citizen.Wait(250)
+        DetachEntity(entity, true, false)
+        DeleteEntity(entity)
+    end)
+end
+
+local function DoAnimation(dict, clip, bone, offset, rot, model, isCurrentlyViewing)
+    Citizen.CreateThread(function()
+
+        RequestAnimDict(dict)
+        while not HasAnimDictLoaded(dict) do 
+            Citizen.Wait(0)
+        end
+
+        local model = GetHashKey(clipboard)
+        RequestModel(model)
+        while not HasModelLoaded(model) do 
+            Citizen.Wait(0)
+        end
+
+        local prop = CreateObject(model, 0.0, 0.0, 0.0, true, true, false)
+        local boneIndex = GetPedBoneIndex(PlayerPedId(), bone)
+        AttachEntityToEntity(prop, PlayerPedId(), boneIndex, offset.x, offset.y, offset.z, rot.x, rot.y, rot.z, true, false, false, false, 2, true)
+        SetModelAsNoLongerNeeded(prop)
+        Citizen.CreateThread(function()
+            while true do
+                Citizen.Wait(0)
+                if IsCurrentlyViewing then 
+                    if not IsEntityPlayingAnim(PlayerPedId(), dict, clip, 3) then
+                        TaskPlayAnim(PlayerPedId(), dict, clip, 3.0, 3.0, -1, 49, 0, 0, 0, 0)
+                    end
+                else
+                    ClearPedSecondaryTask(PlayerPedId())
+                    DetachAnim(prop)
+                    break 
+                end
+            end
+        end)
+    end)
+end
+
 Citizen.CreateThread(function()
     if string.find(Targ, 'ox') then 
         exports.ox_target:addGlobalVehicle({
@@ -363,7 +415,7 @@ RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, 
             msg = 'REGISTRATION SHALL EXPIRE' .. " " .. tostring(config.expire) .. " " .. 'DAYS AFTER ABOVE DATE'
         })
 
-        DoAnimation()
+        DoAnimation(dict, clip, bone, offset, rot, clipboard, true)
     
         Citizen.CreateThread(function()
             while true do 
@@ -417,7 +469,7 @@ RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, nam
             msg = 'INSURANCE SHALL EXPIRE' .. " " .. expire .. " " .. 'DAYS AFTER ABOVE DATE'
         })
 
-        DoAnimation()
+        DoAnimation(dict, clip, bone, offset, rot, clipboard, true)
     
         Citizen.CreateThread(function()
             while true do 
@@ -436,107 +488,3 @@ RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, nam
     end
 
 end)
-
-function DoAnimation()
-    Citizen.CreateThread(function()
-
-        RequestAnimDict(dict)
-        while not HasAnimDictLoaded(dict) do 
-            Citizen.Wait(0)
-        end
-
-        local model = GetHashKey(clipboard)
-        RequestModel(model)
-        while not HasModelLoaded(model) do 
-            Citizen.Wait(0)
-        end
-
-        local prop = CreateObject(model, 0.0, 0.0, 0.0, true, true, false)
-        local boneIndex = GetPedBoneIndex(PlayerPedId(), bone)
-        AttachEntityToEntity(prop, PlayerPedId(), boneIndex, offset.x, offset.y, offset.z, rot.x, rot.y, rot.z, true, false, false, false, 2, true)
-        SetModelAsNoLongerNeeded(prop)
-        Citizen.CreateThread(function()
-            while true do
-                Citizen.Wait(0)
-                if IsCurrentlyViewing then 
-                    if not IsEntityPlayingAnim(PlayerPedId(), dict, clip, 3) then
-                        TaskPlayAnim(PlayerPedId(), dict, clip, 3.0, 3.0, -1, 49, 0, 0, 0, 0)
-                    end
-                else
-                    ClearPedSecondaryTask(PlayerPedId())
-                    DetatchAnim(prop)
-                    break 
-                end
-            end
-        end)
-    end)
-end
-
-function DetatchAnim(entity)
-    Citizen.CreateThread(function()
-        Citizen.Wait(250)
-        DetachEntity(entity, true, false)
-        DeleteEntity(entity)
-        while DoesEntityExist(entity) do 
-            Citizen.Wait(0)
-            DetachEntity(entity, true, false)
-            DeleteEntity(entity)
-        end
-    end)
-end
-
-function GenerateVin()
-    local string = ''
-
-    local chars = {
-        'A',
-        'B',
-        'C',
-        'D',
-        'E',
-        'F',
-        'G',
-        'H',
-        'I', 
-        'J',
-        'K',
-        'L',
-        'M',
-        'N',
-        'O',
-        'P',
-        'Q',
-        'R',
-        'S',
-        'T',
-        'U',
-        'V',
-        'W',
-        'X',
-        'Y',
-        'Z',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '0'
-    }
-
-    while true do 
-        Citizen.Wait(0)
-        if string.len(string) ~= 10 then 
-            local char = chars[math.random(1, #chars)]
-            string = string .. char
-        else
-            break 
-        end
-    end
-
-    return string
-
-end

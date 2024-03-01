@@ -15,6 +15,18 @@ local bone = 36029
 local offset = vector3(0.16, 0.08, 0.1)
 local rot = vector3(-170.0, 50.0, 20.0)
 
+local function ShowVin(vin)
+    lib.alertDialog({
+        header = 'VIN Number:',
+        content = vin,
+        centered = true,
+        cancel = false,
+        labels = {
+            confirm = 'Okay'
+        }
+    })
+end
+
 local function GenerateVin()
     local chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
     local vin = {}
@@ -113,19 +125,6 @@ Citizen.CreateThread(function()
         })
     end
 end)
-
-
-function ShowVin(vin)
-    lib.alertDialog({
-        header = 'VIN Number:',
-        content = vin,
-        centered = true,
-        cancel = false,
-        labels = {
-            confirm = 'Okay'
-        }
-    })
-end
 
 function OnEnter(self, type)
     inZone = true

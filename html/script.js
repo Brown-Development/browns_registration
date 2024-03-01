@@ -22,14 +22,14 @@ document.addEventListener('DOMContentLoaded', function () {
             owner.innerHTML = 'Owner: ' + data.name;
             vin.innerHTML = 'VIN: ' + data.vin;
             date.innerHTML = 'REGISTRATION DATE: ' + data.date;
-            msg.innerHTML = 'REGISTRATION SHALL EXPIRE ' + data.msg;
+            msg.innerHTML = data.msg;
             $('#container').show();
         } else if (data.show === 'ins') {
             insplate.innerHTML = 'Plate: ' + data.plate;
             insowner.innerHTML = 'Owner: ' + data.name;
             insvin.innerHTML = 'VIN: ' + data.vin;
             insdate.innerHTML = 'PAYMENT DATE: ' + data.date;
-            insmsg.innerHTML = 'INSURANCE SHALL EXPIRE ' + data.msg;
+            insmsg.innerHTML = data.msg;
             $('#ins-container').show();
         } else if (data.show === 'hide') {
             $('#container').hide();

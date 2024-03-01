@@ -188,53 +188,37 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNetEvent('browns_registration:client:ShowPaperwork', function (source, plate, name, date, expire) -- once again source is here caus' why not
+RegisterNetEvent('browns_registration:client:ShowPaperwork', function (plate, name, date, expire)
     if not IsCurrentlyViewing then
         local vin = CheckVehicleVin(plate)
-        local paperworkType 
-        print('Expire: ' .. tostring(expire))
-        if not expire then
+        local paperworkType
+        if expire == '' then
             paperworkType = 'registration'
         else 
             paperworkType = 'insurance'
         end
-        print(paperworkType)
         if not vin then
             vin = ApplyVINtoVeh(nil, plate)
         end
-        SendNUIMessage({
-            SendNUIMessage({
-                show = 'reg',
-                plate = 'Plate:' .. " " .. plate, 
-                name = 'Owner:' .. " " .. name,
-                vin = 'VIN:' .. " " .. vin,
-                date = 'REGISTRATION DATE:' .. " " .. date,
-                msg = 'REGISTRATION SHALL EXPIRE' .. " " .. tostring(config.expire) .. " " .. 'DAYS AFTER ABOVE DATE'
-            })
-        })
-        
+        local vinAsString = tostring(vin.vin)
         if paperworkType == 'registration' then
             SendNUIMessage({
                 show = 'reg',
-                plate = 'Plate:' .. " " .. plate, 
-                name = 'Owner:' .. " " .. name,
-                vin = 'VIN:' .. " " .. vin,
-                date = 'REGISTRATION DATE:' .. " " .. date,
+                plate = plate, 
+                name = name,
+                vin = vinAsString,
+                date = date,
                 msg = 'REGISTRATION SHALL EXPIRE' .. " " .. tostring(config.expire) .. " " .. 'DAYS AFTER ABOVE DATE'
             })
-            print('registration')
         elseif paperworkType == 'insurance' then
             SendNUIMessage({
                 show = 'ins',
-                plate = 'Plate:' .. " " .. plate, 
-                name = 'Owner:' .. " " .. name,
-                vin = 'VIN:' .. " " .. vin,
-                date = 'PAYMENT DATE:' .. " " .. date,
+                plate = plate, 
+                name = name,
+                vin = vinAsString,
+                date = date,
                 msg = 'INSURANCE SHALL EXPIRE' .. " " .. expire .. " " .. 'DAYS AFTER ABOVE DATE'
             })
-            print('insurance')
-        else
-            print('lol')
         end
         DoAnimation(dict, clip, bone, offset, rot, clipboard, true)
         IsCurrentlyViewing = true

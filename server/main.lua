@@ -6,29 +6,29 @@ Citizen.CreateThread(function()
     if FW == 'esx' then 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
         end
     elseif FW == 'qb-core' then 
         if not string.find(INV, 'ox') and not string.find(INV, 'qs') then 
             CORE.Functions.CreateUseableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
 
             CORE.Functions.CreateUseableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
         end
 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, nil)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
         end
     end
@@ -94,12 +94,14 @@ end)
 
 lib.callback.register('browns_registration:server:DeliverPaperwork', function(source, plate, name, daysOfInsurance)
     local player = exports.browns_registration:getPlayer(source)
-
     local registrationCost = config.costs.registration
-    local insuranceCost = tonumber(daysOfInsurance) / 30 * config.costs.insurance
-    local totalCost = registrationCost + insuranceCost
-
-    local amount
+    local insuranceCost = 0
+    local totalCost = registrationCost -- default totalCost in case buying a registration
+    if daysOfInsurance then
+        insuranceCost = tonumber(daysOfInsurance) / 30 * config.costs.insurance
+        totalCost = insuranceCost -- nvm player is buying an insurance, replace the price
+    end
+    local playerMoney
     local canPurchase = false
 
     -- Check player's balance
@@ -107,16 +109,16 @@ lib.callback.register('browns_registration:server:DeliverPaperwork', function(so
         local bal = player.getAccounts()
         for _, v in ipairs(bal) do
             if v.name == 'money' then
-                amount = v.money
+                playerMoney = v.money
                 break
             end
         end
     elseif FW == 'qb-core' then
-        amount = player.PlayerData.money.cash
+        playerMoney = player.PlayerData.money.cash
     end
 
     -- Check if player can afford both registration and insurance
-    if amount >= totalCost then
+    if playerMoney >= totalCost then
         canPurchase = true
     end
 
@@ -125,13 +127,15 @@ lib.callback.register('browns_registration:server:DeliverPaperwork', function(so
         if FW == 'esx' then
             player.removeAccountMoney('money', totalCost)
         elseif FW == 'qb-core' then
-            player.Functions.RemoveMoney('cash', totalCost, 'Vehicle Registration and Insurance')
+            player.Functions.RemoveMoney('cash', totalCost, 'Vehicle Registration/Insurance')
         end
 
-        if type == 'registration' then -- Add registration paperwork to player's inventory
-            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), '', 'registration')
-        elseif daysOfInsurance and tonumber(daysOfInsurance) > 0 then -- If insurance daysOfInsurance is provided, add insurance paperwork as well
+        if daysOfInsurance and tonumber(daysOfInsurance) > 0 then -- Add insurance paperwork to player's inventory
+            print(source, 'vehicle_ins', plate, name, os.date(), tostring(daysOfInsurance), 'insurance')
             exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_ins', plate, name, os.date(), tostring(daysOfInsurance), 'insurance')
+        else
+            print(source, 'vehicle_reg', plate, name, os.date(), '', 'registration')
+            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), '', 'registration')
         end
     end
 

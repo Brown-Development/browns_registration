@@ -1,72 +1,67 @@
-local FW = config.Core.framework
+local framework = config.Core.framework
 
 local INV = config.Core.inventory
 
+local chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+local vin = {}
+
+local function GenerateVin()
+    for i = 1, 10 do
+        local index = math.random(1, #chars) -- Get a random index in the range of 1 to the length of chars
+        vin[i] = chars:sub(index, index) -- Select a single character at the random index
+    end
+    return table.concat(vin) -- Concatenate the table into a string
+end
+
+lib.callback.register("browns_registration:server:checkResource", function(source, cb, resource)
+    if GetResourceState(resource) ~= 'missing' then
+        cb(true)
+        return
+    end
+    cb(false)
+end)
+
 Citizen.CreateThread(function()
-    if FW == 'esx' then 
+    if framework == 'esx' then 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('reg:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('reg:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
         end
-    elseif FW == 'qb-core' then 
+    elseif framework == 'qb-core' then 
         if not string.find(INV, 'ox') and not string.find(INV, 'qs') then 
             CORE.Functions.CreateUseableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('reg:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
 
             CORE.Functions.CreateUseableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('reg:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
         end
 
         if string.find(INV, 'qs') then 
             exports['qs-inventory']:CreateUsableItem('vehicle_reg', function(source, item)
-                TriggerClientEvent('reg:client:ShowRegistration', source, item.info.regPlate, item.info.regName, item.info.regDate)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
             exports['qs-inventory']:CreateUsableItem('vehicle_ins', function(source, item)
-                TriggerClientEvent('reg:client:ShowInsurance', source, item.info.regPlate, item.info.regName, item.info.regDate, item.info.regExpire)
+                TriggerClientEvent('browns_registration:client:ShowPaperwork', source, item.info.regPlate, item.info.regVin, item.info.regName, item.info.regDate, item.info.regExpire, item.info.type)
             end)
         end
     end
 end)
 
-exports('UseRegistration', function(event, item, inventory, slot)
-
-    item = exports.ox_inventory:GetSlot(inventory.id, slot)
-
-    if event == 'usingItem' then
-        TriggerClientEvent('reg:client:ShowRegistration', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate)
-
-        return false
-    end
-
-end)
-
-exports('UseInsurance', function(event, item, inventory, slot)
-
-    item = exports.ox_inventory:GetSlot(inventory.id, slot)
-
-    if event == 'usingItem' then
-        TriggerClientEvent('reg:client:ShowInsurance', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate, item.metadata.regExpire)
-
-        return false
-    end
-
-end)
-
-lib.callback.register('reg:server:GetVehicles', function(source)
-    local player = getPlayer(source)
-    local id = getId(player)
+lib.callback.register('browns_registration:server:GetPlayerVehiclesFromDB', function(source)
+    local player = exports.browns_registration:getPlayer(source)
+    local id = exports.browns_registration:getId(player)
 
     local name = nil 
 
     local data = nil 
 
-    if FW == 'esx' then 
+    if framework == 'esx' then 
         local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ?', {
             id
         })
@@ -74,7 +69,7 @@ lib.callback.register('reg:server:GetVehicles', function(source)
         data = vehicles 
 
 
-    elseif  FW == 'qb-core' then 
+    elseif  framework == 'qb-core' then 
         local vehicles = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {
             id
         })
@@ -87,187 +82,103 @@ lib.callback.register('reg:server:GetVehicles', function(source)
     return data, name
 end)
 
-lib.callback.register('reg:server:GetVin', function(source, plate, vin)
-
-    local data = nil
-
-    if FW == 'esx' then 
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE plate = ?', {
-            plate
-        })
-
-        if not vehicles[1] then 
-            data = vin 
-        else
-            if vehicles[1].vin ~= nil then 
-                data = vehicles[1].vin
-            else
-                MySQL.update.await('UPDATE owned_vehicles SET vin = ? WHERE plate = ?', {
-                    vin, plate
-                })
-
-                data = vin 
-            end
-
-        end
-
-    elseif  FW == 'qb-core' then 
-        local vehicles = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {
-            plate
-        })
-
-        if not vehicles[1] then 
-            data = vin 
-        else
-            if vehicles[1].vin ~= nil then 
-                data = vehicles[1].vin
-            else
-                MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {
-                    vin, plate
-                })
-                
-                data = vin 
-            end
-
+local function CheckIfVehicleHasVin(source, plate)
+    local returnData = nil
+    if framework == 'esx' then
+        -- add esx logic
+    elseif framework == 'qb-core' then
+        local vehicleFromDB = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
+        -- note: below we check for the 1st row of vehicleFromDB as it retruns a table array and not row (yea I know, stupid)
+        if vehicleFromDB[1] and vehicleFromDB[1].vin then -- if vehicle is in DB and has a vin
+            returnData = vehicleFromDB[1] -- return the vin
+        elseif vehicleFromDB[1] and vehicleFromDB[1].vin == nil then -- if vehicle is in DB but has no vin
+            returnData = ''
         end
     end
 
-    return data
+    return returnData
+    -- returnData values:
+    -- nil  = vehicle not player
+    -- ''   = vehicle is player but has no vin
+    -- else = vin number
+end
 
+lib.callback.register('browns_registration:server:CheckIfVehicleHasVin', function (source, plate)
+    CheckIfVehicleHasVin(source, plate)
 end)
 
-lib.callback.register('reg:server:GetVINVEH', function(source, plate, vin)
-
-    local data  
-
-    local vehicle = false 
-
-    for _, v in ipairs(GetAllVehicles()) do 
-        if GetVehicleNumberPlateText(v) == plate then 
-            vehicle = v 
-            break 
-        end
+local function RegisterVinToDB(source, plate, generatedVin)
+    if framework == 'esx' then
+        -- add esx logic
+    elseif framework == 'qb-core' then
+        MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {generatedVin, plate})
     end
+end
 
-    if FW == 'esx' then 
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE plate = ?', {
-            plate
-        })
-
-        if vehicles[1].vin ~= nil then 
-            data = vehicles[1].vin
-        else
-            MySQL.update.await('UPDATE owned_vehicles SET vin = ? WHERE plate = ?', {
-                vin, plate
-            })
-
-            data = vin 
-        end
-
-    elseif  FW == 'qb-core' then 
-        local vehicles = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {
-            plate
-        })
-
-        if vehicles[1].vin ~= nil then 
-            data = vehicles[1].vin
-        else
-            MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {
-                vin, plate
-            })
-
-            data = vin 
-        end
-    end
-
-    return data, vehicle
+lib.callback.register('browns_registration:server:RegisterVinToDB', function (source, plate, generatedVin)
+    RegisterVinToDB(source, plate, generatedVin)
 end)
 
-lib.callback.register('reg:server:AddRegistration', function(source, plate, name)
 
-    local player = getPlayer(source)
-
-    local amount
-
+lib.callback.register('browns_registration:server:DeliverPaperwork', function(source, plate, name, daysOfInsurance)
+    local player = exports.browns_registration:getPlayer(source)
+    local registrationCost = config.costs.registration
+    local insuranceCost = 0
+    local totalCost = registrationCost -- default totalCost in case buying a registration
+    if daysOfInsurance then
+        insuranceCost = tonumber(daysOfInsurance) / 30 * config.costs.insurance
+        totalCost = insuranceCost -- nvm player is buying an insurance, replace the price
+    end
+    local playerMoney
     local canPurchase = false
 
-    if FW == 'esx' then 
-
+    -- Check player's balance
+    if framework == 'esx' then
         local bal = player.getAccounts()
-
-        for _, v in ipairs(bal) do 
-            if v.name == 'money' then 
-                amount = v.money 
-                break 
+        for _, v in ipairs(bal) do
+            if v.name == 'money' then
+                playerMoney = v.money
+                break
             end
         end
-
-    elseif FW == 'qb-core' then 
-
-        amount = player.PlayerData.money.cash
+    elseif framework == 'qb-core' then
+        playerMoney = player.PlayerData.money.cash
     end
 
-    if amount >= config.costs.registration then 
-        canPurchase = true 
+    -- Check if player can afford both registration and insurance
+    if playerMoney >= totalCost then
+        canPurchase = true
     end
 
-    if canPurchase then 
-        AddRegistration(source, 'vehicle_reg', plate, name, os.date())
+    if canPurchase then
+        -- Deduct the total cost from player's balance
+        if framework == 'esx' then
+            player.removeAccountMoney('money', totalCost)
+        elseif framework == 'qb-core' then
+            player.Functions.RemoveMoney('cash', totalCost, 'Vehicle Registration/Insurance')
+        end
+        --check if car has vin, if not create
+        local vin = CheckIfVehicleHasVin(source, plate) -- false here is source, as source seems to be needed on the other side tho not used
+        local vinAsString = tostring(vin.vin)
+        if vinAsString == 'nil' then -- checking this way as 'nil' is now a string value (aka true value)
+            local generatedVin = GenerateVin()
+            RegisterVinToDB(source, plate, generatedVin)
+            vinAsString = generatedVin
+        end
+
+        if daysOfInsurance and tonumber(daysOfInsurance) > 0 then -- Add insurance paperwork to player's inventory
+            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_ins', plate, vinAsString, name, os.date(), tostring(daysOfInsurance), 'insurance')
+        else
+            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, vinAsString, name, os.date(), '', 'registration')
+        end
     end
 
     return canPurchase
 end)
 
-lib.callback.register('reg:server:AddInsurance', function(source, plate, plan, name)
-    plan = tonumber(plan)
-
-    local amount
-
-    local canPurchase = false 
-
-    local player = getPlayer(source)
-
-    if FW == 'esx' then 
-
-
-        local bal = player.getAccounts()
-
-        for _, v in ipairs(bal) do 
-            if v.name == 'money' then 
-                amount = v.money 
-                break 
-            end
-        end
-
-    elseif FW == 'qb-core' then 
-
-        amount = player.PlayerData.money.cash
-
-    end
-
-    local cost = plan / 30 * config.costs.insurance 
-
-    if amount >= cost then 
-        canPurchase = true 
-    end
-
-    if canPurchase then 
-        if FW == 'esx' then 
-            player.removeAccountMoney('money', cost)
-        elseif FW == 'qb-core' then
-            player.Functions.RemoveMoney('cash', cost, 'Vehicle Insurance')
-        end
-
-        AddInsurance(source, 'vehicle_ins', plate, name, os.date(), tostring(plan))
-    end
-
-    return canPurchase
-
-end)
-
-lib.callback.register('reg:server:esxdataName', function(source)
-    local player = getPlayer(source)
-    local identifier = getId(player)
+lib.callback.register('browns_registration:server:esxdataName', function(source)
+    local player = exports.browns_registration:getPlayer(source)
+    local identifier = exports.browns_registration:getId(player)
 
     local data = MySQL.query.await('SELECT * FROM users WHERE identifier = ?', {
         identifier

@@ -1,47 +1,43 @@
-local FW = config.Core.framework
-
+-- Determine the server's framework and inventory system from the configuration
+local framework = config.Core.framework
 local INV = config.Core.inventory
 
-function getCore()
-    if FW == 'esx' then 
+-- Function to get the core object of the server's framework
+exports('getCore', function()
+    if framework == 'esx' then 
         return exports['es_extended']:getSharedObject() 
-    elseif FW == 'qb-core' then 
+    elseif framework == 'qb-core' then 
         return exports['qb-core']:GetCoreObject()
     end
-end
+end)
 
-CORE = getCore()
-
-function getPlayer(source)
-    if FW == 'esx' then 
-        return CORE.GetPlayerFromId(source)
-    elseif FW == 'qb-core' then 
-        return CORE.Functions.GetPlayer(source)
+-- Function to get a player object
+exports('getPlayer', function(source)
+    local core = exports['browns_registration']:getCore()
+    if framework == 'esx' then 
+        return core.GetPlayerFromId(source)
+    elseif framework == 'qb-core' then 
+        return core.Functions.GetPlayer(source)
     end
-end
+end)
 
-function getId(player)
-    if FW == 'esx' then 
+-- Function to get a player's identifier
+exports('getId', function(player)
+    if framework == 'esx' then 
         return player.getIdentifier()
-    elseif FW == 'qb-core' then 
+    elseif framework == 'qb-core' then 
         return player.PlayerData.citizenid 
     end
-end
+end)
 
-function AddRegistration(source, item, plate, name, date)
-    if string.find(INV, 'qs') or string.find(INV, 'qb') or string.find(INV, 'lj') or string.find(INV, 'ps') then 
-        exports[INV]:AddItem(source, item, 1, nil, {regPlate = plate, regName = name, regDate = date})
+-- Function to add paperwork
+exports('AddPaperworkToPlayerInventory', function(source, item, plate, vin, name, date, daysOfInsurance, type)
+    if string.find(INV, 'qb') or string.find(INV, 'lj') or string.find(INV, 'ps') then 
+        exports[INV]:AddItem(source, item, 1, nil, {regPlate = plate, regVin = vin, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
+    elseif string.find(INV, 'qs')  then
+        print(daysOfInsurance)
+        exports['qs-inventory']:AddItem(source, item, 1, nil , {regPlate = plate, regVin = vin, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
     else
-        exports.ox_inventory:AddItem(source, item, 1, {regPlate = plate, regName = name, regDate = date})
+        exports.ox_inventory:AddItem(source, item, 1, {regPlate = plate, regVin = vin, regName = name, regDate = date, regExpire = daysOfInsurance, regType = type})
     end
-end
-
-function AddInsurance(source, item, plate, name, date, plan)
-    if string.find(INV, 'qs') or string.find(INV, 'qb') or string.find(INV, 'lj') or string.find(INV, 'ps') then 
-        exports[INV]:AddItem(source, item, 1, nil, {regPlate = plate, regName = name, regDate = date, regExpire = plan})
-    else
-        exports.ox_inventory:AddItem(source, item, 1, {regPlate = plate, regName = name, regDate = date, regExpire = plan})
-    end
-end
-
-
+end)

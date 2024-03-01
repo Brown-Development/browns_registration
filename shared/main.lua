@@ -30,26 +30,13 @@ exports('getId', function(player)
     end
 end)
 
--- Function to add registration
-exports('AddRegistrationExport', function(source, item, plate, name, date)
-    if string.find(INV, 'qb') or string.find(INV, 'lj') or string.find(INV, 'ps') then 
-        exports[INV]:AddItem(source, item, 1, nil, {regPlate = plate, regName = name, regDate = date})
-    elseif string.find(INV, 'qs')  then
-        exports['qs-inventory']:GiveItemToPlayer(source, item, 1)
-    else
-        exports.ox_inventory:AddItem(source, item, 1, {regPlate = plate, regName = name, regDate = date})
-    end
-end)
-
--- Function to add insurance
-exports('AddInsuranceExport', function(source, item, plate, name, date, plan)
+-- Function to add paperwork
+exports('AddPaperworkToPlayerInventory', function(source, item, plate, name, date, plan)
     if string.find(INV, 'qb') or string.find(INV, 'lj') or string.find(INV, 'ps') then 
         exports[INV]:AddItem(source, item, 1, nil, {regPlate = plate, regName = name, regDate = date, regExpire = plan})
     elseif string.find(INV, 'qs')  then
-        exports['qs-inventory']:GiveItemToPlayer(source, item, 1)
+        exports['qs-inventory']:AddItem(source, item, 1, nil , {regPlate = plate, regName = name, regDate = date, regExpire = plan})
     else
         exports.ox_inventory:AddItem(source, item, 1, {regPlate = plate, regName = name, regDate = date, regExpire = plan})
     end
 end)
-
-

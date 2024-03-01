@@ -116,86 +116,6 @@ lib.callback.register('browns_registration:server:RegisterVinToDB', function (so
     end
 end)
 
-lib.callback.register('browns_registration:server:EnsureVehicleVIN', function(source, plate, vin)
-
-    local data = nil
-
-    if FW == 'esx' then 
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE plate = ?', {plate})
-
-        if not vehicles[1] then 
-            data = vin 
-        else
-            if vehicles[1].vin ~= nil then 
-                data = vehicles[1].vin
-            else
-                MySQL.update.await('UPDATE owned_vehicles SET vin = ? WHERE plate = ?', {vin, plate})
-
-                data = vin 
-            end
-
-        end
-
-    elseif  FW == 'qb-core' then 
-        local vehicles = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
-
-        if not vehicles[1] then 
-            data = vin 
-        else
-            if vehicles[1].vin ~= nil then 
-                data = vehicles[1].vin
-            else
-                MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {vin, plate})
-                
-                data = vin 
-            end
-
-        end
-    end
-
-    return data
-
-end)
-
-lib.callback.register('browns_registration:server:HandleVehicleVIN', function(source, plate, vin)
-
-    local data  
-
-    local vehicle = false 
-
-    for _, v in ipairs(GetAllVehicles()) do 
-        if GetVehicleNumberPlateText(v) == plate then 
-            vehicle = v 
-            break 
-        end
-    end
-
-    if FW == 'esx' then 
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE plate = ?', {plate})
-
-        if vehicles[1].vin ~= nil then 
-            data = vehicles[1].vin
-        else
-            MySQL.update.await('UPDATE owned_vehicles SET vin = ? WHERE plate = ?', {vin, plate})
-
-            data = vin 
-        end
-
-    elseif  FW == 'qb-core' then 
-        local vehicles = MySQL.query.await('SELECT * FROM player_vehicles WHERE plate = ?', {plate})
-
-        if vehicles[1].vin ~= nil then 
-            data = vehicles[1].vin
-        else
-            MySQL.update.await('UPDATE player_vehicles SET vin = ? WHERE plate = ?', {vin, plate})
-
-            data = vin 
-        end
-    end
-
-    return data, vehicle
-end)
-
 lib.callback.register('browns_registration:server:AddRegistration', function(source, plate, name)
 
     local player = exports.browns_registration:getPlayer(source)
@@ -225,7 +145,7 @@ lib.callback.register('browns_registration:server:AddRegistration', function(sou
     end
 
     if canPurchase then 
-        exports.browns_registration:AddRegistrationExport(source, 'vehicle_reg', plate, name, os.date())
+        exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), nil)
     end
 
     return canPurchase
@@ -271,7 +191,7 @@ lib.callback.register('browns_registration:server:AddInsurance', function(source
             player.Functions.RemoveMoney('cash', cost, 'Vehicle Insurance')
         end
 
-        exports.browns_registration:AddInsuranceExport(source, 'vehicle_ins', plate, name, os.date(), tostring(plan))
+        exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), tostring(plan))
     end
 
     return canPurchase

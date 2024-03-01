@@ -1,3 +1,9 @@
+# WARNING!!! READ BEFORE DOWNLOAD!!!
+This script has totaly been reworked by @Pyth3rEx
+Core script logic and components have been tampered with!
+This configuration curently only works using qb-core, qb-target and qs-inventory and will stay so as long as this message is on the readme. For the latest untested (but maybe working) version click below:
+https://github.com/Brown-Development/browns_registration/tree/78eaf29d9b5fb1c0987603875ea19b0f164c4e20
+
 # Browns Registration & Insurance By Brown Development
 
 Personal Discord: bwobrown

@@ -36,7 +36,7 @@ Citizen.CreateThread(function()
                     end
                     local replace = plate .. Gen
 
-                    local VIN = lib.callback.await('browns_registration:server:GetVin', false, plate, replace)
+                    local VIN = lib.callback.await('browns_registration:server:EnsureVehicleVIN', false, plate, replace)
 
                     Entity(vehicle).state:set('vin', VIN, true)
 
@@ -67,7 +67,7 @@ Citizen.CreateThread(function()
                             end
                             local replace = plate .. Gen
         
-                            local VIN = lib.callback.await('browns_registration:server:GetVin', false, plate, replace)
+                            local VIN = lib.callback.await('browns_registration:server:EnsureVehicleVIN', false, plate, replace)
         
                             Entity(vehicle).state:set('vin', VIN)
         
@@ -339,7 +339,7 @@ RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, 
     
         local comb = plate .. Gen 
     
-        local VIN, netId = lib.callback.await('browns_registration:server:GetVINVEH', false, plate, comb)
+        local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
     
         if netId ~= false then 
             local Vehicle = NetToVeh(netId)
@@ -404,7 +404,7 @@ RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, nam
     
         local comb = plate .. Gen 
     
-        local VIN, netId = lib.callback.await('browns_registration:server:GetVINVEH', false, plate, comb)
+        local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
     
         if netId ~= false then 
             local Vehicle = NetToVeh(netId)

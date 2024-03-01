@@ -87,7 +87,7 @@ lib.callback.register('browns_registration:server:GetVehicles', function(source)
     return data, name
 end)
 
-lib.callback.register('browns_registration:server:GetVin', function(source, plate, vin)
+lib.callback.register('browns_registration:server:EnsureVehicleVIN', function(source, plate, vin)
 
     local data = nil
 
@@ -136,7 +136,7 @@ lib.callback.register('browns_registration:server:GetVin', function(source, plat
 
 end)
 
-lib.callback.register('browns_registration:server:GetVINVEH', function(source, plate, vin)
+lib.callback.register('browns_registration:server:HandleVehicleVIN', function(source, plate, vin)
 
     local data  
 

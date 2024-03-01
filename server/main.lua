@@ -58,7 +58,7 @@ exports('UseInsurance', function(event, item, inventory, slot)
 
 end)
 
-lib.callback.register('browns_registration:server:GetVehicles', function(source)
+lib.callback.register('browns_registration:server:GetPlayerVehiclesFromDB', function(source)
     local player = exports.browns_registration:getPlayer(source)
     local id = exports.browns_registration:getId(player)
 

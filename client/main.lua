@@ -236,7 +236,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
     if type == 'registration' then
         local plates = {}
 
-        local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
+        local vehicles, playerName = lib.callback.await('browns_registration:server:GetPlayerVehiclesFromDB', false)
     
         if FW == 'esx' then 
             local pdata = CORE.GetPlayerData() 
@@ -280,7 +280,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
         end
     elseif type == 'insurance' then
         local plates = {}
-        local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
+        local vehicles, playerName = lib.callback.await('browns_registration:server:GetPlayerVehiclesFromDB', false)
     
         if FW == 'esx' then 
             local pdata = CORE.GetPlayerData() 
@@ -319,7 +319,7 @@ RegisterNetEvent('browns_registration:client:OpenMenu', function (type)
             })
         
             if input then 
-                local _, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
+                local _, playerName = lib.callback.await('browns_registration:server:GetPlayerVehiclesFromDB', false)
         
                 if FW == 'esx' then 
                     local pdata = CORE.GetPlayerData()

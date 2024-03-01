@@ -113,45 +113,36 @@ end
 
 -- Main loop to check player zone and manage UI
 Citizen.CreateThread(function()
+    if config.Core.target == 'qb-target' then
+        -- add a if statement here and add other target systems. I just did qb-target
+        exports['qb-target']:AddCircleZone("registration", config.locations.registration, 1.5, { -- 1.5 = radius
+        name = "registration",
+        debugPoly = false, }, {
+        options = {{
+            action = function(entity)
+            if IsPedAPlayer(entity) then return false end
+                TriggerEvent("browns_registration:client:OpenMenu", 'registration')
+            end,
+            icon = 'fa-solid fa-hashtag', -- This is the icon that will display next to this trigger option
+            label = 'Car Registration',
+            }
+        },
+        })
+        exports['qb-target']:AddCircleZone("insurance", config.locations.insurance, 1.5, { -- 1.5 = radius
+        name = "insurance",
+        debugPoly = false, }, {
+        options = {{
+            action = function(entity)
+            if IsPedAPlayer(entity) then return false end
+                TriggerEvent("browns_registration:client:OpenMenu", 'insurance')
+            end,
+            icon = 'fa-solid fa-hashtag', -- This is the icon that will display next to this trigger option
+            label = 'Car Insurance',
+            }
+        },
+        })
+    end
 
-    QBCore.Functions.TriggerCallback('mh-atmrobbery:server:checkResource', function(qbTargetIsStarted)
-        if qbTargetIsStarted then
-            -- add a if statement here and add other target systems. I just did qb-target
-            exports['qb-target']:AddCircleZone("registration", config.locations.registration, 1.5, { -- 1.5 = radius
-            name = "registration",
-            debugPoly = false, }, {
-            options = {{
-                action = function(entity)
-                if IsPedAPlayer(entity) then return false end
-                    TriggerEvent("browns_registration:client:OpenMenu", 'registration')
-                end,
-                icon = 'fa-solid fa-hashtag', -- This is the icon that will display next to this trigger option
-                label = '[E] - Car Registration',
-                }
-            },
-            })
-            exports['qb-target']:AddCircleZone("insurance", config.locations.insurance, 1.5, { -- 1.5 = radius
-            name = "insurance",
-            debugPoly = false, }, {
-            options = {{
-                action = function(entity)
-                if IsPedAPlayer(entity) then return false end
-                    TriggerEvent("browns_registration:client:OpenMenu", 'insurance')
-                end,
-                icon = 'fa-solid fa-hashtag', -- This is the icon that will display next to this trigger option
-                label = '[E] - Car Insurance',
-                }
-            },
-            })
-        end
-    end, 'qb-target')
-
-    
-    QBCore.Functions.TriggerCallback('mh-atmrobbery:server:checkResource', function(exampleRessourceIsStarted)
-        if exampleRessourceIsStarted then
-            -- other resource's logic to interact with points
-        end
-    end, 'exampleRessource')
 
     if config.blip.registration.enable then 
         createBlip(config.blip.registration, config.locations.registration)

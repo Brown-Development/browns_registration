@@ -13,7 +13,7 @@ local function GenerateVin()
     return table.concat(vin) -- Concatenate the table into a string
 end
 
-QBCore.Functions.CreateCallback("browns_registration:server:checkResource", function(source, cb, resource)
+lib.callback.register("browns_registration:server:checkResource", function(source, cb, resource)
     if GetResourceState(resource) ~= 'missing' then
         cb(true)
         return

@@ -6,7 +6,7 @@ local Targ = config.Core.target
 
 local inZone = false
 
-local Viewing = false
+local IsCurrentlyViewing= false
 
 local dict = 'missfam4'
 local clip = 'base'
@@ -322,9 +322,9 @@ end)
 
 RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, name, date)
 
-    if not Viewing then 
+    if not IsCurrentlyViewingthen 
 
-        Viewing = true
+        IsCurrentlyViewing= true
 
         local Gen = GenerateVin()
 
@@ -374,7 +374,7 @@ RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, 
                     SendNUIMessage({
                         show = 'hide'
                     })  
-                    Viewing = false
+                    IsCurrentlyViewing= false
                     break 
                 end
             end
@@ -387,9 +387,9 @@ end)
 
 RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, name, date, expire)
 
-    if not Viewing then 
+    if not IsCurrentlyViewingthen 
 
-        Viewing = true
+        IsCurrentlyViewing= true
 
         local Gen = GenerateVin()
 
@@ -440,7 +440,7 @@ RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, nam
                     SendNUIMessage({
                         show = 'hide'
                     })  
-                    Viewing = false
+                    IsCurrentlyViewing= false
                     break 
                 end
             end
@@ -472,7 +472,7 @@ function DoAnimation()
         Citizen.CreateThread(function()
             while true do
                 Citizen.Wait(0)
-                if Viewing then 
+                if IsCurrentlyViewingthen 
                     if not IsEntityPlayingAnim(PlayerPedId(), dict, clip, 3) then
                         TaskPlayAnim(PlayerPedId(), dict, clip, 3.0, 3.0, -1, 49, 0, 0, 0, 0)
                     end

@@ -136,10 +136,14 @@ Citizen.CreateThread(function()
         }
     },
     })
-end)
 
+    if config.blip.registration.enable then 
+        createBlip(config.blip.registration, config.locations.registration)
+    end
 
-Citizen.CreateThread(function()
+    if config.blip.insurance.enable then 
+        createBlip(config.blip.insurance, config.locations.insurance)
+    end
     if string.find(Targ, 'ox') then
         exports.ox_target:addGlobalVehicle({
             label = 'Look at VIN',
@@ -170,16 +174,6 @@ Citizen.CreateThread(function()
             },
             distance = 2.5,
         })
-    end
-end)
-
-Citizen.CreateThread(function()
-    if config.blip.registration.enable then 
-        createBlip(config.blip.registration, config.locations.registration)
-    end
-
-    if config.blip.insurance.enable then 
-        createBlip(config.blip.insurance, config.locations.insurance)
     end
 end)
 

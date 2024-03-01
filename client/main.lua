@@ -141,6 +141,10 @@ Citizen.CreateThread(function()
             }
         },
         })
+    else if config.Core.target == 'ox_target' then
+        -- ox_target logic
+    else if config.Core.target == 'qtarget' then
+        -- qtarget logic
     end
 
 

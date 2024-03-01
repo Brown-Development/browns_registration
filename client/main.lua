@@ -6,7 +6,7 @@ local Targ = config.Core.target
 
 local inZone = false
 
-local IsCurrentlyViewing= false
+local IsCurrentlyViewing = false
 
 local dict = 'missfam4'
 local clip = 'base'
@@ -322,10 +322,8 @@ end)
 
 RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, name, date)
 
-    if not IsCurrentlyViewingthen 
-
-        IsCurrentlyViewing= true
-
+    if not IsCurrentlyViewing then 
+        IsCurrentlyViewing = true
         local Gen = GenerateVin()
 
         while true do 
@@ -342,15 +340,15 @@ RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, 
         local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
     
         if netId ~= false then 
-            local Vehicle = NetToVeh(netId)
+            local vehicle = NetToVeh(netId)
     
-            if Entity(Vehicle).state.vin ~= nil and string.len(Entity(Vehicle).state.vin) >= 10 then 
+            if Entity(vehicle).state.vin ~= nil and string.len(Entity(vehicle).state.vin) >= 10 then 
     
-                VIN = Entity(Vehicle).state.vin
+                VIN = Entity(vehicle).state.vin
     
             else
     
-                Entity(Vehicle).state:set('vin', VIN, true)
+                Entity(vehicle).state:set('vin', VIN, true)
     
             end
     
@@ -374,7 +372,7 @@ RegisterNetEvent('browns_registration:client:ShowRegistration', function(plate, 
                     SendNUIMessage({
                         show = 'hide'
                     })  
-                    IsCurrentlyViewing= false
+                    IsCurrentlyViewing = false
                     break 
                 end
             end
@@ -387,35 +385,23 @@ end)
 
 RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, name, date, expire)
 
-    if not IsCurrentlyViewingthen 
+    if not IsCurrentlyViewing then 
 
-        IsCurrentlyViewing= true
-
+        IsCurrentlyViewing = true
         local Gen = GenerateVin()
-
-        while true do 
-            Citizen.Wait(0)
-            if type(Gen) == 'string' then 
-                if string.len(Gen) == 10 then 
-                    break 
-                end
-            end
-        end
-    
         local comb = plate .. Gen 
-    
         local VIN, netId = lib.callback.await('browns_registration:server:HandleVehicleVIN', false, plate, comb)
-    
+
         if netId ~= false then 
-            local Vehicle = NetToVeh(netId)
+            local vehicle = NetToVeh(netId)
     
-            if Entity(Vehicle).state.vin ~= nil and string.len(Entity(Vehicle).state.vin) >= 10 then 
+            if Entity(vehicle).state.vin ~= nil and string.len(Entity(vehicle).state.vin) >= 10 then 
     
-                VIN = Entity(Vehicle).state.vin
+                VIN = Entity(vehicle).state.vin
     
             else
     
-                Entity(Vehicle).state:set('vin', VIN, true)
+                Entity(vehicle).state:set('vin', VIN, true)
     
             end
     
@@ -440,7 +426,7 @@ RegisterNetEvent('browns_registration:client:ShowInsurance', function(plate, nam
                     SendNUIMessage({
                         show = 'hide'
                     })  
-                    IsCurrentlyViewing= false
+                    IsCurrentlyViewing = false
                     break 
                 end
             end
@@ -472,7 +458,7 @@ function DoAnimation()
         Citizen.CreateThread(function()
             while true do
                 Citizen.Wait(0)
-                if IsCurrentlyViewingthen 
+                if IsCurrentlyViewing then 
                     if not IsEntityPlayingAnim(PlayerPedId(), dict, clip, 3) then
                         TaskPlayAnim(PlayerPedId(), dict, clip, 3.0, 3.0, -1, 49, 0, 0, 0, 0)
                     end

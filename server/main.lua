@@ -116,86 +116,52 @@ lib.callback.register('browns_registration:server:RegisterVinToDB', function (so
     end
 end)
 
-lib.callback.register('browns_registration:server:AddRegistration', function(source, plate, name)
-
+lib.callback.register('browns_registration:server:DeliverPaperwork', function(source, plate, name, plan)
     local player = exports.browns_registration:getPlayer(source)
 
-    local amount
+    local registrationCost = config.costs.registration
+    local insuranceCost = tonumber(plan) / 30 * config.costs.insurance
+    local totalCost = registrationCost + insuranceCost
 
+    local amount
     local canPurchase = false
 
-    if FW == 'esx' then 
-
+    -- Check player's balance
+    if FW == 'esx' then
         local bal = player.getAccounts()
-
-        for _, v in ipairs(bal) do 
-            if v.name == 'money' then 
-                amount = v.money 
-                break 
+        for _, v in ipairs(bal) do
+            if v.name == 'money' then
+                amount = v.money
+                break
             end
         end
-
-    elseif FW == 'qb-core' then 
-
+    elseif FW == 'qb-core' then
         amount = player.PlayerData.money.cash
     end
 
-    if amount >= config.costs.registration then 
-        canPurchase = true 
+    -- Check if player can afford both registration and insurance
+    if amount >= totalCost then
+        canPurchase = true
     end
 
-    if canPurchase then 
-        exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), nil)
-    end
-
-    return canPurchase
-end)
-
-lib.callback.register('browns_registration:server:AddInsurance', function(source, plate, plan, name)
-    plan = tonumber(plan)
-
-    local amount
-
-    local canPurchase = false 
-
-    local player = exports.browns_registration:getPlayer(source)
-
-    if FW == 'esx' then 
-
-
-        local bal = player.getAccounts()
-
-        for _, v in ipairs(bal) do 
-            if v.name == 'money' then 
-                amount = v.money 
-                break 
-            end
-        end
-
-    elseif FW == 'qb-core' then 
-
-        amount = player.PlayerData.money.cash
-
-    end
-
-    local cost = plan / 30 * config.costs.insurance 
-
-    if amount >= cost then 
-        canPurchase = true 
-    end
-
-    if canPurchase then 
-        if FW == 'esx' then 
-            player.removeAccountMoney('money', cost)
+    if canPurchase then
+        -- Deduct the total cost from player's balance
+        if FW == 'esx' then
+            player.removeAccountMoney('money', totalCost)
         elseif FW == 'qb-core' then
-            player.Functions.RemoveMoney('cash', cost, 'Vehicle Insurance')
+            player.Functions.RemoveMoney('cash', totalCost, 'Vehicle Registration and Insurance')
         end
 
-        exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), tostring(plan))
+        -- Add registration paperwork to player's inventory
+        exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_reg', plate, name, os.date(), nil)
+
+        -- If insurance plan is provided, add insurance paperwork as well
+        if plan and tonumber(plan) > 0 then
+            exports.browns_registration:AddPaperworkToPlayerInventory(source, 'vehicle_ins', plate, name, os.date(), tostring(plan))
+        end
     end
 
     return canPurchase
-
 end)
 
 lib.callback.register('browns_registration:server:esxdataName', function(source)

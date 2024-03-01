@@ -34,30 +34,6 @@ Citizen.CreateThread(function()
     end
 end)
 
-exports('UseRegistration', function(event, item, inventory, slot)
-
-    item = exports.ox_inventory:GetSlot(inventory.id, slot)
-
-    if event == 'usingItem' then
-        TriggerClientEvent('browns_registration:client:ShowRegistration', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate)
-
-        return false
-    end
-
-end)
-
-exports('UseInsurance', function(event, item, inventory, slot)
-
-    item = exports.ox_inventory:GetSlot(inventory.id, slot)
-
-    if event == 'usingItem' then
-        TriggerClientEvent('browns_registration:client:ShowInsurance', inventory.id, item.metadata.regPlate, item.metadata.regName, item.metadata.regDate, item.metadata.regExpire)
-
-        return false
-    end
-
-end)
-
 lib.callback.register('browns_registration:server:GetPlayerVehiclesFromDB', function(source)
     local player = exports.browns_registration:getPlayer(source)
     local id = exports.browns_registration:getId(player)

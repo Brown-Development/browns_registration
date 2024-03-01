@@ -1,11 +1,6 @@
 local framework = config.Core.framework 
-
 local Notify = config.Core.notify
-
-local inZone = false
-
 local IsCurrentlyViewing = false
-
 local dict = 'missfam4'
 local clip = 'base'
 local clipboard = 'p_amb_clipboard_01'
@@ -139,9 +134,9 @@ Citizen.CreateThread(function()
             }
         },
         })
-    else if config.Core.target == 'ox_target' then
+    elseif config.Core.target == 'ox_target' then
         -- 
-    else if config.Core.target == 'qtarget' then
+    elseif config.Core.target == 'qtarget' then
         -- qtarget logic
     end
 

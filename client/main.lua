@@ -148,15 +148,20 @@ function ShowVin(vin)
     })
 end
 
-function onEnter(self)
+function OnEnter(self, type)
     inZone = true
-    lib.showTextUI('[E] - Vehicle Registration')
+    if type == 'registration' then
+        lib.showTextUI('[E] - Vehicle Registration')
+    elseif type == 'insurance' then
+        lib.showTextUI('[E] - Vehicle Insurance')
+    end
+
     Citizen.CreateThread(function()
         while inZone do 
             Citizen.Wait(0)
             if IsControlJustPressed(0, 46) then 
                 lib.hideTextUI()
-                OpenMenu()
+                OpenMenu(type)
                 inZone = false 
                 break 
             end
@@ -164,170 +169,134 @@ function onEnter(self)
     end)
 end
 
-function onExit(self)
+function OnExit(self)
     inZone = false 
-    local bool, text = lib.isTextUIOpen()
-    if bool then 
-        if text == '[E] - Vehicle Registration' then 
-            lib.hideTextUI()
-        end
-    end
-end
-
-function onEnter_2(self)
-    inZone = true
-    lib.showTextUI('[E] - Vehicle Insurance')
-    Citizen.CreateThread(function()
-        while inZone do 
-            Citizen.Wait(0)
-            if IsControlJustPressed(0, 46) then 
-                lib.hideTextUI()
-                OpenMenu_2()
-                inZone = false 
-                break 
-            end
-        end
-    end)
-end
-
-function onExit_2(self)
-    inZone = false 
-    local bool, text = lib.isTextUIOpen()
-    if bool then 
-        if text == '[E] - Vehicle Insurance' then 
-            lib.hideTextUI()
-        end
-    end
+    lib.hideTextUI()
 end
 
 Citizen.CreateThread(function()
     lib.zones.box({
         coords = config.locations.registration,
-        onEnter = onEnter,
-        onExit = onExit
+        OnEnter = OnEnter('registration'),
+        OnExit = OnExit
     })
-end)
-
-Citizen.CreateThread(function()
     lib.zones.box({
         coords = config.locations.insurance,
-        onEnter = onEnter_2,
-        onExit = onExit_2
+        OnEnter = OnEnter('insurance'),
+        onExit = OnExit
     })
 end)
 
-function OpenMenu()
-    local plates = {}
+function OpenMenu(type)
+    if type == 'registration' then
+        local plates = {}
 
-    local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
-
-    if FW == 'esx' then 
-        local pdata = CORE.GetPlayerData() 
-        
-        if pdata and pdata.firstName and pdata.lastName then 
-            playerName = pdata.firstName .. " " .. pdata.lastName
-        else
-            playerName = lib.callback.await('browns_registration:server:esxdataName', false)
+        local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
+    
+        if FW == 'esx' then 
+            local pdata = CORE.GetPlayerData() 
+            
+            if pdata and pdata.firstName and pdata.lastName then 
+                playerName = pdata.firstName .. " " .. pdata.lastName
+            else
+                playerName = lib.callback.await('browns_registration:server:esxdataName', false)
+            end
+            
         end
+    
+        if vehicles[1] then 
+            for i = 1, #vehicles do 
+                local data = vehicles[i]
+                table.insert(plates, {
+                    title = data.plate,
+                    description = 'Click to Purchase Registration for vehicle with plate:' .. " " .. data.plate,
+                    onSelect = function()
+                        local bool = lib.callback.await('browns_registration:server:AddRegistration', false, data.plate, playerName)
+                        
+                        if not bool then 
+                            Notify('Vehicle Registration', 'You dont have enough money', 'error', 5000)
+                        end
+                    end
+                })
+            end
+    
+            lib.registerContext({
+                id = 'browns_registration',
+                title = 'Vehicle Registration',
+                options = plates
+            })
+    
+            lib.showContext('browns_registration')
+    
+        else
+    
+            Notify('Vehicle Registration', 'You dont own any vehicles', 'error', 5000)
+    
+        end
+    elseif type == 'insurance' then
+        local plates = {}
+        local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
+    
+        if FW == 'esx' then 
+            local pdata = CORE.GetPlayerData() 
+            if pdata and pdata.firstName and pdata.lastName then 
+                playerName = pdata.firstName .. " " .. pdata.lastName
+            else
+                playerName = lib.callback.await('browns_registration:server:esxdataName', false)
+            end
+        end
+    
+        if vehicles[1] then 
+            for i = 1, #vehicles do
+                local data = vehicles[i]
+                table.insert(plates, {
+                    label = 'Plate:' .. " " .. data.plate,
+                    value = data.plate
+                })
+            end
+    
+            local input = lib.inputDialog('Purchase Insurance - ($' .. tostring(config.costs.insurance) .. " Per Month)", {
+                {type = 'select', label = 'Choose Vehicle', options = plates, description = 'Choose Vehicle By Plate'},
+                {type = 'select', label = 'Choose Plan', options = {
+                    {label = '1 Month', value = '30'},
+                    {label = '2 Month', value = '60'},
+                    {label = '3 Month', value = '90'},
+                    {label = '4 Month', value = '120'},
+                    {label = '5 Month', value = '150'},
+                    {label = '6 Month', value = '180'},
+                    {label = '7 Month', value = '210'},
+                    {label = '8 Month', value = '240'},
+                    {label = '9 Month', value = '270'},
+                    {label = '10 Month', value = '300'},
+                    {label = '11 Month', value = '330'},
+                    {label = '12 Month', value = '360'},
+                }},
+            })
         
-    end
-
-    if vehicles[1] then 
-        for i = 1, #vehicles do 
-            local data = vehicles[i]
-            table.insert(plates, {
-                title = data.plate,
-                description = 'Click to Purchase Registration for vehicle with plate:' .. " " .. data.plate,
-                onSelect = function()
-                    local bool = lib.callback.await('browns_registration:server:AddRegistration', false, data.plate, playerName)
-                    
-                    if not bool then 
-                        Notify('Vehicle Registration', 'You dont have enough money', 'error', 5000)
+            if input then 
+                local _, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
+        
+                if FW == 'esx' then 
+                    local pdata = CORE.GetPlayerData()
+                    if pdata and pdata.firstName and pdata.lastName then 
+                        playerName = pdata.firstName .. " " .. pdata.lastName
+                    else
+                        playerName = lib.callback.await('browns_registration:server:esxdataName', false)
                     end
                 end
-            })
-        end
-
-        lib.registerContext({
-            id = 'browns_registration',
-            title = 'Vehicle Registration',
-            options = plates
-        })
-
-        lib.showContext('browns_registration')
-
-    else
-
-        Notify('Vehicle Registration', 'You dont own any vehicles', 'error', 5000)
-
-    end
-
-end
-
-function OpenMenu_2()
-    local plates = {}
-    local vehicles, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
-
-    if FW == 'esx' then 
-        local pdata = CORE.GetPlayerData() 
-        if pdata and pdata.firstName and pdata.lastName then 
-            playerName = pdata.firstName .. " " .. pdata.lastName
-        else
-            playerName = lib.callback.await('browns_registration:server:esxdataName', false)
-        end
-    end
-
-    if vehicles[1] then 
-        for i = 1, #vehicles do
-            local data = vehicles[i]
-            table.insert(plates, {
-                label = 'Plate:' .. " " .. data.plate,
-                value = data.plate
-            })
-        end
-
-        local input = lib.inputDialog('Purchase Insurance - ($' .. tostring(config.costs.insurance) .. " Per Month)", {
-            {type = 'select', label = 'Choose Vehicle', options = plates, description = 'Choose Vehicle By Plate'},
-            {type = 'select', label = 'Choose Plan', options = {
-                {label = '1 Month', value = '30'},
-                {label = '2 Month', value = '60'},
-                {label = '3 Month', value = '90'},
-                {label = '4 Month', value = '120'},
-                {label = '5 Month', value = '150'},
-                {label = '6 Month', value = '180'},
-                {label = '7 Month', value = '210'},
-                {label = '8 Month', value = '240'},
-                {label = '9 Month', value = '270'},
-                {label = '10 Month', value = '300'},
-                {label = '11 Month', value = '330'},
-                {label = '12 Month', value = '360'},
-            }},
-        })
-    
-        if input then 
-            local _, playerName = lib.callback.await('browns_registration:server:GetVehicles', false)
-    
-            if FW == 'esx' then 
-                local pdata = CORE.GetPlayerData()
-                if pdata and pdata.firstName and pdata.lastName then 
-                    playerName = pdata.firstName .. " " .. pdata.lastName
-                else
-                    playerName = lib.callback.await('browns_registration:server:esxdataName', false)
+        
+                local bool = lib.callback.await('browns_registration:server:AddInsurance', false, input[1], input[2], playerName)
+        
+                if not bool then 
+                    Notify('Vehicle Insurance', 'You Dont have enough money', 'error', 5000)
                 end
             end
     
-            local bool = lib.callback.await('browns_registration:server:AddInsurance', false, input[1], input[2], playerName)
+        else
+            Notify('Vehicle Insurance', 'You dont own any vehicles', 'error', 5000)
     
-            if not bool then 
-                Notify('Vehicle Insurance', 'You Dont have enough money', 'error', 5000)
-            end
         end
-
-    else
-        Notify('Vehicle Insurance', 'You dont own any vehicles', 'error', 5000)
-
     end
-
 end
 
 Citizen.CreateThread(function()

@@ -13,6 +13,14 @@ local function GenerateVin()
     return table.concat(vin) -- Concatenate the table into a string
 end
 
+QBCore.Functions.CreateCallback("browns_registration:server:checkResource", function(source, cb, resource)
+    if GetResourceState(resource) ~= 'missing' then
+        cb(true)
+        return
+    end
+    cb(false)
+end)
+
 Citizen.CreateThread(function()
     if FW == 'esx' then 
         if string.find(INV, 'qs') then 
